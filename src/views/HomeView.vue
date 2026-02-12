@@ -1,17 +1,17 @@
 <script setup></script>
 
 <template>
-    <section class="home">
-        <div class="hero">
-            <div class="hero-text">
-                <p class="kicker">11 de febrero de 2026</p>
+    <section class="InicioSeccion">
+        <div class="HeroPrincipal">
+            <div class="HeroTexto">
+                <p class="TextoFecha">11 de febrero de 2026</p>
                 <h1>Encuentra tu proximo free tour</h1>
-                <p class="lead">
+                <p class="TextoIntro">
                     Busca rutas por ciudad, tema o duracion. Descubre
                     experiencias guiadas con vistas inolvidables.
                 </p>
 
-                <div class="search" aria-label="Buscador de tours">
+                <div class="BuscadorTours" aria-label="Buscador de tours">
                     <input
                         type="search"
                         name="q"
@@ -21,22 +21,24 @@
                     <button type="button">Buscar</button>
                 </div>
 
-                <div class="links" aria-label="Accesos visuales">
-                    <button class="pill primary" type="button">
+                <div class="AccesosRapidos" aria-label="Accesos visuales">
+                    <button class="BotonPildora BotonPrincipal" type="button">
                         Iniciar sesion
                     </button>
-                    <button class="pill ghost" type="button">Registro</button>
+                    <button class="BotonPildora BotonSecundario" type="button">
+                        Registro
+                    </button>
                 </div>
             </div>
 
-            <div class="carousel" aria-label="Carrusel de paisajes">
-                <div class="slide slide-a">
+            <div class="CarruselPaisajes" aria-label="Carrusel de paisajes">
+                <div class="SlideImagen SlideA">
                     <img
                         src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80"
                         alt="Montañas al amanecer"
                     />
                 </div>
-                <div class="slide slide-b">
+                <div class="SlideImagen SlideB">
                     <img
                         src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80"
                         alt="Valle con neblina"
@@ -48,11 +50,11 @@
 </template>
 
 <style scoped>
-.home {
+.InicioSeccion {
     padding: 2.5rem 1.25rem 3.5rem;
 }
 
-.hero {
+.HeroPrincipal {
     max-width: 1100px;
     margin: 0 auto;
     display: grid;
@@ -60,32 +62,32 @@
     align-items: center;
 }
 
-.hero-text {
+.HeroTexto {
     display: grid;
     gap: 1rem;
 }
 
-.kicker {
+.TextoFecha {
     text-transform: uppercase;
     letter-spacing: 0.2em;
     font-size: 0.75rem;
     color: #2e2d2b;
 }
 
-.lead {
+.TextoIntro {
     max-width: 38ch;
     color: #1e1d1b;
     font-size: 1.1rem;
     line-height: 1.6;
 }
 
-.search {
+.BuscadorTours {
     display: grid;
     gap: 0.75rem;
     grid-template-columns: 1fr;
 }
 
-.search input {
+.BuscadorTours input {
     border: 1px solid #c9c3b8;
     border-radius: 999px;
     padding: 0.85rem 1.1rem;
@@ -93,7 +95,7 @@
     font-size: 1rem;
 }
 
-.search button {
+.BuscadorTours button {
     border: none;
     border-radius: 999px;
     padding: 0.85rem 1.4rem;
@@ -104,13 +106,13 @@
     cursor: pointer;
 }
 
-.links {
+.AccesosRapidos {
     display: flex;
     gap: 0.85rem;
     flex-wrap: wrap;
 }
 
-.pill {
+.BotonPildora {
     border-radius: 999px;
     padding: 0.65rem 1.4rem;
     font-weight: 600;
@@ -120,17 +122,17 @@
     background: transparent;
 }
 
-.pill.primary {
+.BotonPildora.BotonPrincipal {
     background: #0f1f2d;
     color: #f7f2e8;
 }
 
-.pill.ghost {
+.BotonPildora.BotonSecundario {
     border-color: #0f1f2d;
     color: #0f1f2d;
 }
 
-.carousel {
+.CarruselPaisajes {
     position: relative;
     border-radius: 24px;
     overflow: hidden;
@@ -138,25 +140,25 @@
     box-shadow: 0 30px 70px rgba(15, 31, 45, 0.2);
 }
 
-.slide {
+.SlideImagen {
     position: absolute;
     inset: 0;
     opacity: 0;
     animation: fade 10s infinite;
 }
 
-.slide img {
+.SlideImagen img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
 }
 
-.slide-a {
+.SlideA {
     animation-delay: 0s;
 }
 
-.slide-b {
+.SlideB {
     animation-delay: 5s;
 }
 
@@ -176,22 +178,22 @@
 }
 
 @media (min-width: 900px) {
-    .hero {
+    .HeroPrincipal {
         grid-template-columns: 1.1fr 0.9fr;
     }
 
-    .search {
+    .BuscadorTours {
         grid-template-columns: 1fr auto;
         align-items: center;
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .slide {
+    .SlideImagen {
         animation: none;
         opacity: 1;
     }
-    .slide-b {
+    .SlideB {
         display: none;
     }
 }

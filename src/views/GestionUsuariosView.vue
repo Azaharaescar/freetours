@@ -1,0 +1,305 @@
+<script setup>
+import { ref } from "vue";
+
+const busqueda = ref("");
+const rol = ref("todos");
+
+const usuariosDemo = [
+    {
+        id: 1,
+        nombre: "Ana López",
+        email: "ana@correo.com",
+        rol: "cliente",
+        estado: "activo",
+    },
+    {
+        id: 2,
+        nombre: "Carlos Ruiz",
+        email: "carlos@correo.com",
+        rol: "guia",
+        estado: "activo",
+    },
+    {
+        id: 3,
+        nombre: "María Pérez",
+        email: "maria@correo.com",
+        rol: "admin",
+        estado: "bloqueado",
+    },
+    {
+        id: 4,
+        nombre: "Jorge Martín",
+        email: "jorge@correo.com",
+        rol: "cliente",
+        estado: "pendiente",
+    },
+];
+</script>
+
+<template>
+    <section class="GestionUsuariosSeccion">
+        <div class="CabeceraPanel">
+            <div>
+                <h2>Gestión de usuarios</h2>
+                <p class="SubtituloPanel">
+                    Panel visual para administrar cuentas (sin lógica aún).
+                </p>
+            </div>
+            <button type="button" class="BotonPrincipal">
+                + Nuevo usuario
+            </button>
+        </div>
+
+        <div class="PanelFiltros">
+            <div class="CampoFiltro">
+                <label for="buscar">Buscar</label>
+                <input
+                    id="buscar"
+                    v-model="busqueda"
+                    type="text"
+                    placeholder="Nombre o correo"
+                />
+            </div>
+
+            <div class="CampoFiltro">
+                <label for="rol">Rol</label>
+                <select id="rol" v-model="rol">
+                    <option value="todos">Todos</option>
+                    <option value="cliente">Cliente</option>
+                    <option value="guia">Guía</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+
+            <div class="AccionesFiltro">
+                <button type="button" class="BotonSecundario">Aplicar</button>
+                <button type="button" class="BotonSecundario EstadoGhost">
+                    Limpiar
+                </button>
+            </div>
+        </div>
+
+        <div class="ContenedorTabla">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Correo</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="usuario in usuariosDemo" :key="usuario.id">
+                        <td>{{ usuario.id }}</td>
+                        <td>{{ usuario.nombre }}</td>
+                        <td>{{ usuario.email }}</td>
+                        <td>
+                            <span class="EtiquetaEstado">{{
+                                usuario.rol
+                            }}</span>
+                        </td>
+                        <td>
+                            <span
+                                class="EtiquetaEstado"
+                                :class="usuario.estado"
+                                >{{ usuario.estado }}</span
+                            >
+                        </td>
+                        <td class="AccionesTabla">
+                            <button type="button" class="BotonMini">
+                                Editar
+                            </button>
+                            <button
+                                type="button"
+                                class="BotonMini EstadoPeligro"
+                            >
+                                Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="PiePanel">
+            <p>Mostrando 4 usuarios</p>
+            <div class="ControlesPaginacion">
+                <button type="button" class="BotonMini">Anterior</button>
+                <button type="button" class="BotonMini">Siguiente</button>
+            </div>
+        </div>
+    </section>
+</template>
+
+<style scoped>
+.GestionUsuariosSeccion {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 3rem;
+    display: grid;
+    gap: 1.25rem;
+}
+
+.CabeceraPanel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+h2 {
+    margin: 0;
+}
+
+.SubtituloPanel {
+    margin: 0.35rem 0 0;
+    color: #4a5b4f;
+}
+
+.PanelFiltros {
+    background: #ffffff;
+    border: 1px solid #d6e2d8;
+    border-radius: 14px;
+    padding: 1rem;
+    display: grid;
+    gap: 0.85rem;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    align-items: end;
+}
+
+.CampoFiltro {
+    display: grid;
+    gap: 0.35rem;
+}
+
+.CampoFiltro label {
+    font-weight: 600;
+    color: #1f2b24;
+}
+
+.CampoFiltro input,
+.CampoFiltro select {
+    border: 1px solid #c9d7cc;
+    border-radius: 10px;
+    padding: 0.6rem 0.75rem;
+    background: #f7fbf7;
+}
+
+.AccionesFiltro {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.ContenedorTabla {
+    overflow-x: auto;
+    background: #ffffff;
+    border: 1px solid #d6e2d8;
+    border-radius: 14px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 760px;
+}
+
+th,
+td {
+    text-align: left;
+    padding: 0.85rem 0.8rem;
+    border-bottom: 1px solid #eef3ef;
+}
+
+th {
+    background: #f4faf5;
+    font-size: 0.92rem;
+}
+
+.EtiquetaEstado {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 0.2rem 0.65rem;
+    font-size: 0.8rem;
+    background: #e8f3ea;
+    color: #1f4a2d;
+}
+
+.EtiquetaEstado.bloqueado {
+    background: #ffe6e6;
+    color: #8a1f1f;
+}
+
+.EtiquetaEstado.pendiente {
+    background: #fff5d9;
+    color: #7d5a00;
+}
+
+.AccionesTabla {
+    display: flex;
+    gap: 0.45rem;
+}
+
+.PiePanel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.PiePanel p {
+    margin: 0;
+    color: #4a5b4f;
+}
+
+.ControlesPaginacion {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.BotonPrincipal,
+.BotonSecundario,
+.BotonMini {
+    border-radius: 999px;
+    border: 1px solid transparent;
+    cursor: pointer;
+}
+
+.BotonPrincipal {
+    background: #234f32;
+    color: #f0fff2;
+    padding: 0.65rem 1rem;
+    font-weight: 600;
+}
+
+.BotonSecundario {
+    background: #ffffff;
+    border-color: #234f32;
+    color: #234f32;
+    padding: 0.5rem 0.9rem;
+}
+
+.BotonSecundario.EstadoGhost {
+    border-color: #9caf9f;
+    color: #2f3f35;
+}
+
+.BotonMini {
+    background: #f7fbf7;
+    border-color: #c9d7cc;
+    color: #1f2b24;
+    padding: 0.35rem 0.75rem;
+}
+
+.BotonMini.EstadoPeligro {
+    background: #fff0f0;
+    border-color: #f2c1c1;
+    color: #962b2b;
+}
+</style>

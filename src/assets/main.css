@@ -1,0 +1,46 @@
+@import "./base.css";
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Source+Sans+3:wght@400;600&display=swap");
+
+body {
+    font-family: "Source Sans 3", "Helvetica Neue", Helvetica, sans-serif;
+    background: radial-gradient(
+        circle at top,
+        #f8f1e6 0%,
+        #efe4d3 50%,
+        #e7d9c3 100%
+    );
+    color: #141310;
+}
+
+h1,
+h2,
+h3 {
+    font-family: "Playfair Display", "Times New Roman", serif;
+}
+
+#app {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+    font-weight: normal;
+}
+
+a,
+.green {
+    text-decoration: none;
+    color: hsla(160, 100%, 37%, 1);
+    transition: 0.4s;
+    padding: 3px;
+}
+
+@media (hover: hover) {
+    a:hover {
+        background-color: hsla(160, 100%, 37%, 0.2);
+    }
+}
+
+@media (min-width: 1024px) {
+    #app {
+        padding: 2.5rem 2rem;
+    }
+}

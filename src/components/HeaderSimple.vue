@@ -1,7 +1,9 @@
 <script setup>
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
+const usuarioActual = ref(JSON.parse(localStorage.getItem("sesion")));
 
 function haySesion() {
     return !!localStorage.getItem("sesion");
@@ -23,18 +25,19 @@ function cerrarSesion() {
             <nav>
                 <router-link to="/" class="EnlaceNav">Inicio</router-link>
                 <router-link to="/about" class="EnlaceNav">Acerca</router-link>
-                <router-link v-if="haySesion()" to="/usuarios" class="EnlaceNav"
-                    >Usuarios</router-link
-                >
-                <router-link v-if="!haySesion()" to="/login" class="EnlaceNav"
-                    >Iniciar sesion</router-link
-                >
                 <router-link
-                    v-if="!haySesion()"
-                    to="/registro"
+                    v-if="usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual === 'admin')"
+                    to="/usuarios"
                     class="EnlaceNav"
-                    >Registrarse</router-link
                 >
+                    Usuarios
+                </router-link>
+                <router-link v-if="!haySesion()" to="/login" class="EnlaceNav">
+                    Iniciar sesion
+                </router-link>
+                <router-link v-if="!haySesion()" to="/registro" class="EnlaceNav">
+                    Registrarse
+                </router-link>
                 <button
                     v-if="haySesion()"
                     type="button"
@@ -102,7 +105,6 @@ nav a {
     padding: 0.3rem 0.8rem;
     cursor: pointer;
 }
-
 nav a.router-link-active {
     text-decoration: underline;
 }

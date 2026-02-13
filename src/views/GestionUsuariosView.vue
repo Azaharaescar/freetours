@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, ref } from "vue";
-import { apiUrl } from "../main.js";
+import { apiUrl } from "../config/api.js";
+
 
 const busqueda = ref("");
 const rol = ref("todos");
@@ -28,17 +29,67 @@ async function cargarUsuarios() {
 }
 
 // Funcion que recoge el id como parametro en el boton con @click y elimina a usuario de la api 
+// Eliminar usuario
 function Eliminar(id){
-    console.log("Id recibido " + id );
-    
-fetch(apiUrl + "usuarios?id=" + id,  {
-    method: 'DELETE',
-})
-.then(response => response.json())
-.then(data => console.log('Respuesta:', data))
-
-.catch(error => console.error('Error:', error));
+    fetch(apiUrl + "usuarios?id=" + id,  {
+        method: 'DELETE',
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Usuario eliminado");
+        cargarUsuarios(); // recarga la tabla
+    })
+    .catch(error => {
+        console.log("Error al eliminar:", error);
+    });
 }
+
+// Guardar cambios de usuario
+async function guardarUsuario(usuario) {
+
+    if (!usuario.rol) {
+        alert("Selecciona un rol antes de guardar");
+        return;
+    }
+
+    const datosActualizados = {
+        rol: usuario.rol
+    }
+    
+    try {
+        const respuesta = await fetch(apiUrl + "usuarios?id=" + usuario.id, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(datosActualizados)
+        });
+
+        const textoRespuesta = await respuesta.text();
+        let data = null;
+
+        if (textoRespuesta) {
+            try {
+                data = JSON.parse(textoRespuesta);
+            } catch (error) {
+                console.log("Respuesta no es JSON:", textoRespuesta);
+            }
+        }
+
+        if (!respuesta.ok) {
+            const mensaje = data && data.message ? data.message : "Error del servidor al guardar";
+            alert(mensaje);
+            return;
+        }
+
+        console.log("Usuario actualizado");
+        cargarUsuarios();
+    } catch (error) {
+        console.log("Error al guardar:", error);
+        alert("Error al guardar el usuario");
+    }
+}
+
 
 
 onMounted(function() /*Cuando onMounted corre, el componente ya es visible y el DOM está listo, permitiendo manipular elementos directamente.*/{
@@ -76,11 +127,9 @@ onMounted(function() /*Cuando onMounted corre, el componente ya es visible y el 
 
             <div class="CampoFiltr">
                 <label for="rol">Rol</label>
-                <select id="rol" v-model="rol">
-                    <option value="todos">Todos</option>
-                    <option value="cliente">Cliente</option>
-                    <option value="guia">Guía</option>
-                    <option value="admin">Admin</option>
+                <select v-model="rol">
+                    <option value="admin">admin</option>
+                    <option value="usuario">usuario</option>
                 </select>
             </div>
 
@@ -108,18 +157,23 @@ onMounted(function() /*Cuando onMounted corre, el componente ya es visible y el 
                 <td>{{ usuario.id }}</td>
                 <td>{{ usuario.nombre }}</td>
                 <td>{{ usuario.email }}</td>
-                <td><select id="rol" v-model="rol">
-                    <option value="todos">{{ usuario.rol }}</option>
-                    <option value="cliente">Cliente</option>
-                    <option value="guia">Guía</option>
-                    <option value="admin">Admin</option>
-                </select>
-                </td>
+               <td>
+  <select v-model="usuario.rol">
+    <option value="usuario">Usuario</option>
+    <option value="guia">Guía</option>
+    <option value="admin">Admin</option>
+  </select>
+</td>
+
                 <td>
-                    <button @click="Eliminar(usuario.id)">
+                    <button type="button" @click="Eliminar(usuario.id)">
                         Eliminar
                     </button>
+                    <button type="button" @click="guardarUsuario(usuario)">
+                        Guardar
+                    </button>
                 </td>
+
             </tr>
         </tbody>
             </table>

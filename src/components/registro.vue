@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { apiUrl } from "../main.js";
+import { apiUrl } from "../config/api.js";
 
 const nombre = ref("");
 const correo = ref("");

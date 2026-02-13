@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { apiUrl } from "../main.js";
+import { apiUrl } from "../config/api.js";
 // Variables del formulario (lo que escribe el usuario)
 
 const correo = ref("");

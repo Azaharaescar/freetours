@@ -35,13 +35,13 @@ async function enviar() {
         console.log(datos);
 
         if (datos.status === "success") {
-            // Guardamos sesión para que no se pierda al recargar la página
+            //gardamos sesión para que no se pierda al recargar la página
             localStorage.setItem("sesion", JSON.stringify(datos.user));
             router.push("/");
             return;
         }
 
-        // Si el backend dice que no, mostramos mensaje amigable
+        // Si el backend dice que no, mostramos mensaje
         alert(datos.message || "Correo o contraseña incorrectos");
     } catch (error) {
         console.error("Error en login:", error);

@@ -9,4 +9,4 @@ const app = createApp(App)
 app.use(router)
 
 app.mount('#app')
-export const apiUrl = 'http://localhost:8002/api.php/';
+export const apiUrl = 'http://localhost:8001/api.php/';

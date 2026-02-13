@@ -6,26 +6,47 @@ const busqueda = ref("");
 const rol = ref("todos");
 const usuariosBD = ref([]);
 
+// funcion asincrona para cargar los usuarios desde la api y guardarlos en el array de usuarios BD 
 async function cargarUsuarios() {
     try {
-        const respuesta = await fetch(apiUrl + "usuarios", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+        let respuesta = await fetch(apiUrl + "usuarios", {
+            method: "GET"
         });
 
-        const datos = await respuesta.json();
-        usuariosBD.value = Array.isArray(datos) ? datos : [];
+        let datos = await respuesta.json();
+
+        if (Array.isArray(datos)) {
+            usuariosBD.value = datos;
+        } else {
+            usuariosBD.value = [];
+        }
+
     } catch (error) {
-        console.error("Error al cargar usuarios:", error);
+        console.log("Hubo un error al cargar los usuarios");
         usuariosBD.value = [];
     }
 }
 
-onMounted(() => {
+// Funcion que recoge el id como parametro en el boton con @click y elimina a usuario de la api 
+function Eliminar(id){
+    console.log("Id recibido " + id );
+    
+fetch(apiUrl + "usuarios?id=" + id,  {
+    method: 'DELETE',
+})
+.then(response => response.json())
+.then(data => console.log('Respuesta:', data))
+
+.catch(error => console.error('Error:', error));
+}
+
+
+onMounted(function() /*Cuando onMounted corre, el componente ya es visible y el DOM está listo, permitiendo manipular elementos directamente.*/{
     cargarUsuarios();
+
+
 });
+
 </script>
 
 <template>
@@ -34,16 +55,16 @@ onMounted(() => {
             <div>
                 <h2>Gestión de usuarios</h2>
                 <p class="SubtituloPanel">
-                    Panel visual para administrar cuentas (sin lógica aún).
+                   Administración de cuentas.
                 </p>
             </div>
-            <button type="button" class="BotonPrincipal">
+            <button type="button" class="BotonPrincipa">
                 + Nuevo usuario
             </button>
         </div>
 
         <div class="PanelFiltros">
-            <div class="CampoFiltro">
+            <div class="CampoFiltr">
                 <label for="buscar">Buscar</label>
                 <input
                     id="buscar"
@@ -53,7 +74,7 @@ onMounted(() => {
                 />
             </div>
 
-            <div class="CampoFiltro">
+            <div class="CampoFiltr">
                 <label for="rol">Rol</label>
                 <select id="rol" v-model="rol">
                     <option value="todos">Todos</option>
@@ -64,8 +85,8 @@ onMounted(() => {
             </div>
 
             <div class="AccionesFiltro">
-                <button type="button" class="BotonSecundario">Aplicar</button>
-                <button type="button" class="BotonSecundario EstadoGhost">
+                <button type="button" class="BotonSecundari">Aplicar</button>
+                <button type="button" class="BotonSecundari">
                     Limpiar
                 </button>
             </div>
@@ -74,50 +95,38 @@ onMounted(() => {
         <div class="ContenedorTabla">
             <table>
                 <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Correo</th>
-                        <th>Rol</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="usuario in usuariosBD" :key="usuario.id">
-                        <td>{{ usuario.id }}</td>
-                        <td><input type="text" v-model="usuario.nombre" /></td>
-                        <td>{{ usuario.email }}</td>
-                        <td>
-                            <span class="EtiquetaEstado">{{
-                                usuario.rol
-                            }}</span>
-                        </td>
-                        <td>
-                            <span
-                                class="EtiquetaEstado"
-                                :class="usuario.estado"
-                                >{{ usuario.estado }}</span
-                            >
-                        </td>
-                        <td class="AccionesTabla">
-                            <button type="button" class="BotonMini">
-                                Editar
-                            </button>
-                            <button
-                                type="button"
-                                class="BotonMini EstadoPeligro"
-                            >
-                                Eliminar
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Rol</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="usuario in usuariosBD" :key="usuario.id">
+                <td>{{ usuario.id }}</td>
+                <td>{{ usuario.nombre }}</td>
+                <td>{{ usuario.email }}</td>
+                <td><select id="rol" v-model="rol">
+                    <option value="todos">{{ usuario.rol }}</option>
+                    <option value="cliente">Cliente</option>
+                    <option value="guia">Guía</option>
+                    <option value="admin">Admin</option>
+                </select>
+                </td>
+                <td>
+                    <button @click="Eliminar(usuario.id)">
+                        Eliminar
+                    </button>
+                </td>
+            </tr>
+        </tbody>
             </table>
         </div>
 
         <div class="PiePanel">
-            <p>Mostrando 4 usuarios</p>
+            <p>Mostrando usuarios</p>
             <div class="ControlesPaginacion">
                 <button type="button" class="BotonMini">Anterior</button>
                 <button type="button" class="BotonMini">Siguiente</button>

@@ -1,39 +1,31 @@
 <script setup>
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
+import { apiUrl } from "../main.js";
 
 const busqueda = ref("");
 const rol = ref("todos");
+const usuariosBD = ref([]);
 
-const usuariosDemo = [
-    {
-        id: 1,
-        nombre: "Ana López",
-        email: "ana@correo.com",
-        rol: "cliente",
-        estado: "activo",
-    },
-    {
-        id: 2,
-        nombre: "Carlos Ruiz",
-        email: "carlos@correo.com",
-        rol: "guia",
-        estado: "activo",
-    },
-    {
-        id: 3,
-        nombre: "María Pérez",
-        email: "maria@correo.com",
-        rol: "admin",
-        estado: "bloqueado",
-    },
-    {
-        id: 4,
-        nombre: "Jorge Martín",
-        email: "jorge@correo.com",
-        rol: "cliente",
-        estado: "pendiente",
-    },
-];
+async function cargarUsuarios() {
+    try {
+        const respuesta = await fetch(apiUrl + "usuarios", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        const datos = await respuesta.json();
+        usuariosBD.value = Array.isArray(datos) ? datos : [];
+    } catch (error) {
+        console.error("Error al cargar usuarios:", error);
+        usuariosBD.value = [];
+    }
+}
+
+onMounted(() => {
+    cargarUsuarios();
+});
 </script>
 
 <template>
@@ -92,9 +84,9 @@ const usuariosDemo = [
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="usuario in usuariosDemo" :key="usuario.id">
+                    <tr v-for="usuario in usuariosBD" :key="usuario.id">
                         <td>{{ usuario.id }}</td>
-                        <td>{{ usuario.nombre }}</td>
+                        <td><input type="text" v-model="usuario.nombre" /></td>
                         <td>{{ usuario.email }}</td>
                         <td>
                             <span class="EtiquetaEstado">{{

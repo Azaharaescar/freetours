@@ -15,7 +15,7 @@ async function enviar() {
         return;
     }
 
-    // Preparamos el body exactamente como lo espera tu API
+    // Preparamos el body exactamente como lo la API
     const datosLogin = {
         email: correo.value.trim(),
         contraseña: contraseña.value,
@@ -29,8 +29,10 @@ async function enviar() {
             },
             body: JSON.stringify(datosLogin),
         });
-
+        //    console.log(respuesta);
+        //const datos = await respuesta.text();
         const datos = await respuesta.json();
+        console.log(datos);
 
         if (datos.status === "success") {
             // Guardamos sesión para que no se pierda al recargar la página

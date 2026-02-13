@@ -18,6 +18,7 @@ async function enviar() {
 
     // Regla simple: contraseña de mínimo 8 chars (tu placeholder ya lo pide)
     if (contraseña.value.length < 8) {
+        0;
         alert("La contraseña debe tener mínimo 8 caracteres");
         return;
     }
@@ -43,6 +44,8 @@ async function enviar() {
         // Si todo fue bien, lo normal: mandamos al login
         if (datos.status === "success" || datos.id || datos.message) {
             alert("Cuenta creada correctamente");
+            console.log(datos);
+
             router.push("/login");
             return;
         }

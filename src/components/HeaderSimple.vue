@@ -1,18 +1,42 @@
 <script setup>
-import { ref } from "vue";
+import { onBeforeUnmount, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
 const usuarioActual = ref(JSON.parse(localStorage.getItem("sesion")));
 
+function actualizarSesion() {
+    // Aquí refrescamos el usuario del header sin recargar toda la web.
+    usuarioActual.value = JSON.parse(localStorage.getItem("sesion"));
+}
+
 function haySesion() {
-    return !!localStorage.getItem("sesion");
+    if (localStorage.getItem("sesion")) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 function cerrarSesion() {
+    // Cerramos sesión y actualizamos el menú al momento.
     localStorage.removeItem("sesion");
+    actualizarSesion();
+
+    // Avisamos al resto de componentes de que la sesión cambió.
+    window.dispatchEvent(new Event("sesionCambiada"));
     router.push("/login");
 }
+
+onMounted(() => {
+    // Nos quedamos escuchando cambios de sesión (login/logout).
+    window.addEventListener("sesionCambiada", actualizarSesion);
+});
+
+onBeforeUnmount(() => {
+    // Limpiamos el listener para que no se acumulen eventos duplicados.
+    window.removeEventListener("sesionCambiada", actualizarSesion);
+});
 </script>
 
 <template>
@@ -26,7 +50,7 @@ function cerrarSesion() {
                 <router-link to="/" class="EnlaceNav">Inicio</router-link>
                 <router-link to="/about" class="EnlaceNav">Acerca</router-link>
                 <router-link
-                    v-if="usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual === 'admin')"
+                    v-if="usuarioActual && usuarioActual.rol === 'admin'"
                     to="/usuarios"
                     class="EnlaceNav"
                 >
@@ -35,7 +59,11 @@ function cerrarSesion() {
                 <router-link v-if="!haySesion()" to="/login" class="EnlaceNav">
                     Iniciar sesion
                 </router-link>
-                <router-link v-if="!haySesion()" to="/registro" class="EnlaceNav">
+                <router-link
+                    v-if="!haySesion()"
+                    to="/registro"
+                    class="EnlaceNav"
+                >
                     Registrarse
                 </router-link>
                 <button

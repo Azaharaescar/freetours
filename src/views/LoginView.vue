@@ -2,20 +2,20 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { apiUrl } from "../config/api.js";
-// Variables del formulario (lo que escribe el usuario)
+// Lo que la persona va escribiendo en el formulario.
 
 const correo = ref("");
 const contraseña = ref("");
 const router = useRouter();
 
 async function enviar() {
-    // Mini validación para no mandar el formulario vacío (evitamos sustos tontos)
+    // Si falta algo, ni llamamos a la API y avisamos directo.
     if (!correo.value || !contraseña.value) {
         alert("Rellena correo y contraseña");
         return;
     }
 
-    // Preparamos el body exactamente como lo la API
+    // Armamos los datos tal cual los espera el backend.
     const datosLogin = {
         email: correo.value.trim(),
         contraseña: contraseña.value,
@@ -35,13 +35,18 @@ async function enviar() {
         console.log(datos);
 
         if (datos.status === "success") {
-            //gardamos sesión para que no se pierda al recargar la página
+            // Guardamos sesión para que siga logueado al cambiar de vista.
             localStorage.setItem("sesion", JSON.stringify(datos.user));
+
+            // Le avisamos al header para que se actualice en caliente.
+            window.dispatchEvent(new Event("sesionCambiada"));
+
+            // Todo OK, volvemos al inicio.
             router.push("/");
             return;
         }
 
-        // Si el backend dice que no, mostramos mensaje
+        // Si usuario/clave no cuadran, mostramos aviso.
         alert(datos.message || "Correo o contraseña incorrectos");
     } catch (error) {
         console.error("Error en login:", error);

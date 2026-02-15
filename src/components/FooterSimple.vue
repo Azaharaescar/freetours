@@ -8,6 +8,7 @@
 
 <script setup>
 import { ref } from "vue";
+// Año automático para no tener que tocarlo cada enero.
 const year = new Date().getFullYear();
 </script>
 

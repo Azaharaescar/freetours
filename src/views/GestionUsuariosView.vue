@@ -2,16 +2,15 @@
 import { onMounted, ref } from "vue";
 import { apiUrl } from "../config/api.js";
 
-
 const busqueda = ref("");
 const rol = ref("todos");
 const usuariosBD = ref([]);
 
-// funcion asincrona para cargar los usuarios desde la api y guardarlos en el array de usuarios BD 
+// Cargamos usuarios desde la API para pintar la tabla.
 async function cargarUsuarios() {
     try {
         let respuesta = await fetch(apiUrl + "usuarios", {
-            method: "GET"
+            method: "GET",
         });
 
         let datos = await respuesta.json();
@@ -21,48 +20,45 @@ async function cargarUsuarios() {
         } else {
             usuariosBD.value = [];
         }
-
     } catch (error) {
         console.log("Hubo un error al cargar los usuarios");
         usuariosBD.value = [];
     }
 }
 
-// Funcion que recoge el id como parametro en el boton con @click y elimina a usuario de la api 
-// Eliminar usuario
-function Eliminar(id){
-    fetch(apiUrl + "usuarios?id=" + id,  {
-        method: 'DELETE',
+// Borrar usuario y volver a cargar lista para ver cambios al instante.
+function Eliminar(id) {
+    fetch(apiUrl + "usuarios?id=" + id, {
+        method: "DELETE",
     })
-    .then(response => response.json())
-    .then(data => {
-        console.log("Usuario eliminado");
-        cargarUsuarios(); // recarga la tabla
-    })
-    .catch(error => {
-        console.log("Error al eliminar:", error);
-    });
+        .then((response) => response.json())
+        .then((data) => {
+            console.log("Usuario eliminado");
+            cargarUsuarios(); // recarga la tabla
+        })
+        .catch((error) => {
+            console.log("Error al eliminar:", error);
+        });
 }
 
-// Guardar cambios de usuario
+// Guardar el rol que acabamos de cambiar desde el select.
 async function guardarUsuario(usuario) {
-
     if (!usuario.rol) {
         alert("Selecciona un rol antes de guardar");
         return;
     }
 
     const datosActualizados = {
-        rol: usuario.rol
-    }
-    
+        rol: usuario.rol,
+    };
+
     try {
         const respuesta = await fetch(apiUrl + "usuarios?id=" + usuario.id, {
             method: "PUT",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
             },
-            body: JSON.stringify(datosActualizados)
+            body: JSON.stringify(datosActualizados),
         });
 
         const textoRespuesta = await respuesta.text();
@@ -77,7 +73,10 @@ async function guardarUsuario(usuario) {
         }
 
         if (!respuesta.ok) {
-            const mensaje = data && data.message ? data.message : "Error del servidor al guardar";
+            const mensaje =
+                data && data.message
+                    ? data.message
+                    : "Error del servidor al guardar";
             alert(mensaje);
             return;
         }
@@ -90,14 +89,10 @@ async function guardarUsuario(usuario) {
     }
 }
 
-
-
-onMounted(function() /*Cuando onMounted corre, el componente ya es visible y el DOM está listo, permitiendo manipular elementos directamente.*/{
+onMounted(function () {
+    // En cuanto entra a la vista, pedimos los usuarios.
     cargarUsuarios();
-
-
 });
-
 </script>
 
 <template>
@@ -105,13 +100,9 @@ onMounted(function() /*Cuando onMounted corre, el componente ya es visible y el 
         <div class="CabeceraPanel">
             <div>
                 <h2>Gestión de usuarios</h2>
-                <p class="SubtituloPanel">
-                   Administración de cuentas.
-                </p>
+                <p class="SubtituloPanel">Administración de cuentas.</p>
             </div>
-            <button type="button" class="BotonPrincipa">
-                + Nuevo usuario
-            </button>
+            <button type="button" class="BotonPrincipa">+ Nuevo usuario</button>
         </div>
 
         <div class="PanelFiltros">
@@ -135,47 +126,47 @@ onMounted(function() /*Cuando onMounted corre, el componente ya es visible y el 
 
             <div class="AccionesFiltro">
                 <button type="button" class="BotonSecundari">Aplicar</button>
-                <button type="button" class="BotonSecundari">
-                    Limpiar
-                </button>
+                <button type="button" class="BotonSecundari">Limpiar</button>
             </div>
         </div>
 
         <div class="ContenedorTabla">
             <table>
                 <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Correo</th>
-                <th>Rol</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for="usuario in usuariosBD" :key="usuario.id">
-                <td>{{ usuario.id }}</td>
-                <td>{{ usuario.nombre }}</td>
-                <td>{{ usuario.email }}</td>
-               <td>
-  <select v-model="usuario.rol">
-    <option value="usuario">Usuario</option>
-    <option value="guia">Guía</option>
-    <option value="admin">Admin</option>
-  </select>
-</td>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Correo</th>
+                        <th>Rol</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="usuario in usuariosBD" :key="usuario.id">
+                        <td>{{ usuario.id }}</td>
+                        <td>{{ usuario.nombre }}</td>
+                        <td>{{ usuario.email }}</td>
+                        <td>
+                            <select v-model="usuario.rol">
+                                <option value="usuario">Usuario</option>
+                                <option value="guia">Guía</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </td>
 
-                <td>
-                    <button type="button" @click="Eliminar(usuario.id)">
-                        Eliminar
-                    </button>
-                    <button type="button" @click="guardarUsuario(usuario)">
-                        Guardar
-                    </button>
-                </td>
-
-            </tr>
-        </tbody>
+                        <td>
+                            <button type="button" @click="Eliminar(usuario.id)">
+                                Eliminar
+                            </button>
+                            <button
+                                type="button"
+                                @click="guardarUsuario(usuario)"
+                            >
+                                Guardar
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
             </table>
         </div>
 

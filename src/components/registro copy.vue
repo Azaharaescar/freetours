@@ -1,85 +1,107 @@
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 
-const nombre = ref('')
-const correo = ref('')
-const contraseña = ref('')
+const nombre = ref("");
+const correo = ref("");
+const contraseña = ref("");
 
-const router = useRouter()
+const router = useRouter();
 
 const userData = {
-    nombre: 'Nuevo Usuario',
-    email: 'nuevo@example.com',
-    contraseña: 'miContraseña123'
+    nombre: "Nuevo Usuario",
+    email: "nuevo@example.com",
+    contraseña: "miContraseña123",
 };
 
-fetch('http://localhost/api.php/usuarios', {
-    method: 'POST',
+fetch("http://localhost/api.php/usuarios", {
+    method: "POST",
     headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
     },
-    body: JSON.stringify(userData)
+    body: JSON.stringify(userData),
 })
-.then(response => response.json())
-.then(data => console.log('Respuesta:', data))
-.catch(error => console.error('Error:', error));
-
-
-
-
+    .then((response) => response.json())
+    .then((data) => console.log("Respuesta:", data))
+    .catch((error) => console.error("Error:", error));
 
 function enviar() {
-    console.log('Registro enviado', { nombre: nombre.value, correo: correo.value, contraseña: contraseña.value })
-    // Aquí iría la llamada a la API para crear la cuenta
-    // Después redirigir al login o a la página principal
-    router.push('/login')
+    console.log("Registro enviado", {
+        nombre: nombre.value,
+        correo: correo.value,
+        contraseña: contraseña.value,
+    });
+    // Aquí iría la llamada real a la API para crear la cuenta.
+    // De momento, en cuanto se envía, mandamos al login.
+    router.push("/login");
 }
 
 function irLogin() {
-    router.push('/login')
+    router.push("/login");
 }
 </script>
 
 <template>
-
     <section class="contenedor">
         <div class="tarjeta">
             <div class="formulario">
-
                 <h2 class="titulo">Crear cuenta</h2>
                 <p class="nota">Completa tus datos para unirte a FreeTours.</p>
 
                 <form @submit.prevent="enviar">
                     <div class="campo">
                         <label for="nombre">Nombre completo</label>
-                        <input id="nombre" v-model="nombre" type="text" placeholder="Tu nombre" />
+                        <input
+                            id="nombre"
+                            v-model="nombre"
+                            type="text"
+                            placeholder="Tu nombre"
+                        />
                     </div>
 
                     <div class="campo">
                         <label for="correo">Correo</label>
-                        <input id="correo" v-model="correo" type="email" placeholder="nombre@correo.com" />
+                        <input
+                            id="correo"
+                            v-model="correo"
+                            type="email"
+                            placeholder="nombre@correo.com"
+                        />
                     </div>
 
                     <div class="campo">
                         <label for="contrasena">Contraseña</label>
-                        <input id="contrasena" v-model="contraseña" type="password" placeholder="Mínimo 8 caracteres" />
+                        <input
+                            id="contrasena"
+                            v-model="contraseña"
+                            type="password"
+                            placeholder="Mínimo 8 caracteres"
+                        />
                     </div>
 
                     <div class="acciones">
-                        <button type="submit" class="boton-primario">Crear cuenta</button>
-                        <button type="button" class="boton-secundario" @click="irLogin">Ir a iniciar sesión</button>
+                        <button type="submit" class="boton-primario">
+                            Crear cuenta
+                        </button>
+                        <button
+                            type="button"
+                            class="boton-secundario"
+                            @click="irLogin"
+                        >
+                            Ir a iniciar sesión
+                        </button>
                     </div>
                 </form>
-
             </div>
 
             <div class="imagen" aria-hidden="true">
-                <img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80" alt="Imagen decorativa" />
+                <img
+                    src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80"
+                    alt="Imagen decorativa"
+                />
             </div>
         </div>
     </section>
-
 </template>
 
 <style scoped>

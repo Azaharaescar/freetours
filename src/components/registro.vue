@@ -10,20 +10,31 @@ const contraseña = ref("");
 const router = useRouter();
 
 async function enviar() {
-    // Validación básica para que no te llegue basura al backend
+    // Chequeo rápido para no enviar el formulario a medias.
     if (!nombre.value || !correo.value || !contraseña.value) {
         alert("Completa todos los campos");
         return;
     }
 
-    // Regla simple: contraseña de mínimo 8 chars (tu placeholder ya lo pide)
+    // Regla mínima: contraseña con al menos 8 caracteres.
     if (contraseña.value.length < 8) {
         0;
         alert("La contraseña debe tener mínimo 8 caracteres");
         return;
     }
 
-    // Armamos el objeto con el formato que pide la API
+    // Pedimos usuarios para comprobar si el correo ya está pillado.
+    const respuestaUsuarios = await fetch(apiUrl + "usuarios");
+    const usuarios = await respuestaUsuarios.json();
+    const emailForm = correo.value.trim();
+    for (let i = 0; i < usuarios.length; i++) {
+        if (usuarios[i].email === emailForm) {
+            alert("Ya existe una cuenta con ese correo");
+            return;
+        }
+    }
+
+    // Si todo está bien, montamos los datos para crear la cuenta.
     const datosUsuario = {
         nombre: nombre.value.trim(),
         email: correo.value.trim(),
@@ -41,7 +52,7 @@ async function enviar() {
 
         const datos = await respuesta.json();
 
-        // Si todo fue bien, lo normal: mandamos al login
+        // Si se creó bien, mandamos al login para iniciar sesión.
         if (datos.status === "success" || datos.id || datos.message) {
             alert("Cuenta creada correctamente");
             console.log(datos);

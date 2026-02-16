@@ -1,4 +1,16 @@
-<script setup></script>
+<script setup>
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+
+function irLogin() {
+    router.push("/login");
+}
+
+function irRegistro() {
+    router.push("/registro");
+}
+</script>
 
 <template>
     <section class="InicioSeccion">
@@ -22,10 +34,18 @@
                 </div>
 
                 <div class="AccesosRapidos" aria-label="Accesos visuales">
-                    <button class="BotonPildora BotonPrincipal" type="button">
+                    <button
+                        class="BotonPildora BotonPrincipal"
+                        type="button"
+                        @click="irLogin"
+                    >
                         Iniciar sesion
                     </button>
-                    <button class="BotonPildora BotonSecundario" type="button">
+                    <button
+                        class="BotonPildora BotonSecundario"
+                        type="button"
+                        @click="irRegistro"
+                    >
                         Registro
                     </button>
                 </div>

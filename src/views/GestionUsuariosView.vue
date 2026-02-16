@@ -119,8 +119,10 @@ onMounted(function () {
             <div class="CampoFiltr">
                 <label for="rol">Rol</label>
                 <select v-model="rol">
+                    <option value="todos">todos</option>
+                    <option value="cliente">cliente</option>
+                    <option value="guia">guía</option>
                     <option value="admin">admin</option>
-                    <option value="usuario">usuario</option>
                 </select>
             </div>
 
@@ -148,7 +150,7 @@ onMounted(function () {
                         <td>{{ usuario.email }}</td>
                         <td>
                             <select v-model="usuario.rol">
-                                <option value="usuario">Usuario</option>
+                                <option value="cliente">Cliente</option>
                                 <option value="guia">Guía</option>
                                 <option value="admin">Admin</option>
                             </select>

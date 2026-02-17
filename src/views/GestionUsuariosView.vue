@@ -1,25 +1,33 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import { apiUrl } from "../config/api.js";
-
+// Lo que la persona va escribiendo en los filtros.
 const busqueda = ref("");
+// Rol que se ha seleccionado en el filtro de rol.
 const rol = ref("todos");
+// Usuarios que se muestran en la tabla después de aplicar filtros
 const usuariosBD = ref([]);
 
 // Cargamos usuarios desde la API para pintar la tabla.
 async function cargarUsuarios() {
     try {
+        //Hacemos la petición a la API para traer los usuarios.
+        //fetch por defecto hace GET coge datos , asi que no hace falta especificarlo.
         let respuesta = await fetch(apiUrl + "usuarios", {
             method: "GET",
         });
-
+        // La API responde con un JSON, así que lo convertimos a objeto de JS.
         let datos = await respuesta.json();
-
+        //si datos es un array los metemos en usuariosBD
+        // a Usuarios filtrados le damos el valor de usuariosBD para tenerlos de referencia sin modificar.
         if (Array.isArray(datos)) {
             usuariosBD.value = datos;
+            //si no es un array dejamos la tabla vacía y mostramos un error en consola.
         } else {
             usuariosBD.value = [];
+            console.log("Error: la respuesta de la API no es un array");
         }
+        //si hay algún error en la petición o al procesar los datos lo mostramos en consola y dejamos la tabla vacía.
     } catch (error) {
         console.log("Hubo un error al cargar los usuarios");
         usuariosBD.value = [];
@@ -28,13 +36,16 @@ async function cargarUsuarios() {
 
 // Borrar usuario y volver a cargar lista para ver cambios al instante.
 function Eliminar(id) {
+    // Pedimos a la API que borre el usuario con el id que le pasamos.
     fetch(apiUrl + "usuarios?id=" + id, {
         method: "DELETE",
     })
+        //la API responde con un JSON, así que lo convertimos a objeto de JS.
         .then((response) => response.json())
+        //si la respuesta no es un JSON válido, lo mostramos en consola para depurar.
         .then((data) => {
             console.log("Usuario eliminado");
-            cargarUsuarios(); // recarga la tabla
+            cargarUsuarios(); // recarga la tabla para ver los cambios al instante
         })
         .catch((error) => {
             console.log("Error al eliminar:", error);
@@ -43,27 +54,34 @@ function Eliminar(id) {
 
 // Guardar el rol que acabamos de cambiar desde el select.
 async function guardarUsuario(usuario) {
+    //si el usuario no tiene rol seleccionado, mostramos un error y no hacemos la petición.
     if (!usuario.rol) {
         alert("Selecciona un rol antes de guardar");
         return;
     }
-
+    //preparamos los datos que vamos a enviar a la API para actualizar el usuario.
     const datosActualizados = {
         rol: usuario.rol,
     };
 
     try {
+        //hacemos la petición a la API para actualizar el usuario.
         const respuesta = await fetch(apiUrl + "usuarios?id=" + usuario.id, {
-            method: "PUT",
+            method: "PUT", //el método PUT se usa para actualizar recursos existentes.
             headers: {
-                "Content-Type": "application/json",
+                "Content-Type": "application/json", //indicamos que el cuerpo de la petición es un JSON.
             },
+            //convertimos los datos actualizados a JSON para enviarlos en el cuerpo de la petición.
             body: JSON.stringify(datosActualizados),
         });
-
+        //la API responde con un JSON, así que lo convertimos a objeto de JS.
         const textoRespuesta = await respuesta.text();
+        //let data = null para poder usarlo en el bloque de código siguiente
+        //donde si la respuesta es un JSON válido lo asignamos a data
+        //  y si no lo es mostramos el texto de la respuesta en consola para depurar.
         let data = null;
 
+        //si la respuesta tiene texto, intentamos convertirlo a JSON.
         if (textoRespuesta) {
             try {
                 data = JSON.parse(textoRespuesta);
@@ -71,14 +89,17 @@ async function guardarUsuario(usuario) {
                 console.log("Respuesta no es JSON:", textoRespuesta);
             }
         }
-
+        //si la respuesta no es ok, mostramos un error con el mensaje que venga en el JSON o un mensaje genérico.
         if (!respuesta.ok) {
-            const mensaje =
-                data && data.message
-                    ? data.message
-                    : "Error del servidor al guardar";
+            let mensaje = "Error del servidor al guardar";
+
+            if (data) {
+                if (data.message) {
+                    mensaje = data.message;
+                }
+            }
+
             alert(mensaje);
-            return;
         }
 
         console.log("Usuario actualizado");
@@ -87,6 +108,26 @@ async function guardarUsuario(usuario) {
         console.log("Error al guardar:", error);
         alert("Error al guardar el usuario");
     }
+}
+
+function filtrarUsuarios(busqueda, rol) {
+    // Empezamos con la lista completa de usuarios sin filtrar.
+    let filtrados = [...usuariosBD.value];
+
+    // Si se ha seleccionado un rol específico, filtramos por ese rol.
+    if (rol.value && rol.value !== "todos") {
+        filtrados = filtrados.filter((usuario) => usuario.rol === rol.value);
+    }
+    if (busqueda.value) {
+        const busquedaMinuscula = busqueda.value.toLowerCase();
+        filtrados = filtrados.filter(
+            (usuario) =>
+                usuario.nombre.toLowerCase().includes(busquedaMinuscula) ||
+                usuario.email.toLowerCase().includes(busquedaMinuscula),
+        );
+    }
+    // Actualizamos la lista de usuarios que se muestra en la tabla.
+    usuariosBD.value = filtrados;
 }
 
 onMounted(function () {
@@ -100,23 +141,21 @@ onMounted(function () {
         <div class="CabeceraPanel">
             <div>
                 <h2>Gestión de usuarios</h2>
-                <p class="SubtituloPanel">Administración de cuentas.</p>
+                <p class="SubtituloPanel">Administración de cuentas</p>
             </div>
-            <button type="button" class="BotonPrincipa">+ Nuevo usuario</button>
         </div>
 
         <div class="PanelFiltros">
-            <div class="CampoFiltr">
+            <div class="CampoFiltro">
                 <label for="buscar">Buscar</label>
                 <input
-                    id="buscar"
                     v-model="busqueda"
                     type="text"
                     placeholder="Nombre o correo"
                 />
             </div>
 
-            <div class="CampoFiltr">
+            <div class="CampoFiltro">
                 <label for="rol">Rol</label>
                 <select v-model="rol">
                     <option value="todos">todos</option>
@@ -127,8 +166,14 @@ onMounted(function () {
             </div>
 
             <div class="AccionesFiltro">
-                <button type="button" class="BotonSecundari">Aplicar</button>
-                <button type="button" class="BotonSecundari">Limpiar</button>
+                <button
+                    type="button"
+                    @click="filtrarUsuarios"
+                    class="BotonSecundario"
+                >
+                    Aplicar
+                </button>
+                <button type="button" class="BotonSecundario">Limpiar</button>
             </div>
         </div>
 

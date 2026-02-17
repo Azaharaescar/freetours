@@ -56,6 +56,20 @@ onBeforeUnmount(() => {
                 >
                     Usuarios
                 </router-link>
+                <router-link
+                    v-if="usuarioActual && usuarioActual.rol === 'admin'"
+                    to="/rutas"
+                    class="EnlaceNav"
+                >
+                   Rutas
+                </router-link>
+                <router-link
+                    v-if="haySesion()"
+                    to="/registro-rutas"
+                    class="EnlaceNav"
+                >
+                    Registro rutas
+                </router-link>
                 <router-link v-if="!haySesion()" to="/login" class="EnlaceNav">
                     Iniciar sesion
                 </router-link>

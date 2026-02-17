@@ -1,48 +1,50 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { apiUrl } from "../config/api.js";
+import { apiUrl } from "../config/api";
 
-const nombre = ref("");
-const correo = ref("");
-const contraseña = ref("");
-
+const titulo = ref("");
+const localidad = ref("");
+const fecha = ref("");
+const hora = ref("");
+const descripcion = ref("");
+const foto = ref("");
+const latitud = ref("");
+const longitud = ref("");
+const guiaId = ref("");
 const router = useRouter();
+function onFotoChange(event) {
+    const archivo = event.target.files?.[0];
+    foto.value = archivo ? archivo.name : "";
+}
 
 async function enviar() {
     // Chequeo rápido para no enviar el formulario a medias.
-    if (!nombre.value || !correo.value || !contraseña.value) {
+    if (!titulo.value || !localidad.value || !fecha.value  || !hora.value || !descripcion.value || !foto.value || !fecha.value || !hora.value || !latitud.value || !longitud.value || !guiaId.value ) {
         alert("Completa todos los campos");
         return;
     }
 
-    // Regla mínima: contraseña con al menos 8 caracteres.
-    if (contraseña.value.length < 8) {
-        0;
-        alert("La contraseña debe tener mínimo 8 caracteres");
-        return;
-    }
 
     // Pedimos usuarios para comprobar si el correo ya está pillado.
-    const respuestaUsuarios = await fetch(apiUrl + "usuarios");
+    const respuestaUsuarios = await fetch(apiUrl + "rutas");
     const usuarios = await respuestaUsuarios.json();
-    const emailForm = correo.value.trim();
-    for (let i = 0; i < usuarios.length; i++) {
-        if (usuarios[i].email === emailForm) {
-            alert("Ya existe una cuenta con ese correo");
-            return;
-        }
-    }
 
     // Si todo está bien, montamos los datos para crear la cuenta.
     const datosUsuario = {
-        nombre: nombre.value.trim(),
-        email: correo.value.trim(),
-        contraseña: contraseña.value,
+    titulo: titulo.value,
+    localidad: localidad.value,
+    descripcion: descripcion.value,
+    foto: foto.value,
+    fecha: fecha.value,
+    hora: hora.value,
+    latitud: latitud.value,
+    longitud: longitud.value,
+    guia_id: guiaId.value// ID del guía (opcional)
     };
 
     try {
-        const respuesta = await fetch(apiUrl + "usuarios", {
+        const respuesta = await fetch(apiUrl + "rutas", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -54,14 +56,14 @@ async function enviar() {
 
         // Si se creó bien, mandamos al login para iniciar sesión.
         if (datos.status === "success" || datos.id || datos.message) {
-            alert("Cuenta creada correctamente");
+            alert("ruta creada correctamente");
             console.log(datos);
 
             router.push("/login");
             return;
         }
 
-        alert(datos.message || "No se pudo crear la cuenta");
+        alert(datos.message || "No se pudo crear la ruta");
     } catch (error) {
         console.error("Error en registro:", error);
         alert("No se pudo conectar con el servidor");
@@ -71,59 +73,91 @@ async function enviar() {
 function irLogin() {
     router.push("/login");
 }
-</script>
 
+
+ 
+
+</script>
 <template>
-    <section class="SeccionRegistro">
+<section class="SeccionRegistro">
         <div class="TarjetaRegistro">
             <div class="FormularioRegistro">
-                <h2 class="TituloRegistro">Crear cuenta</h2>
+                <h2 class="TituloRegistro">Crear ruta</h2>
                 <p class="TextoNota">
-                    Completa tus datos para unirte a FreeTours
+                    Completa tus datos para agregar una ruta
                 </p>
 
                 <form @submit.prevent="enviar">
                     <div class="CampoFormulario">
-                        <label for="nombre">Nombre completo</label>
+                        <label for="titulo">Titulo ruta</label>
                         <input
-                            id="nombre"
-                            v-model="nombre"
+                            v-model="titulo"
                             type="text"
-                            placeholder="Tu nombre"
+                            placeholder="Titulo"
                         />
                     </div>
 
                     <div class="CampoFormulario">
-                        <label for="correo">Correo</label>
+                        <label for="localidad">Localidad</label>
                         <input
-                            id="correo"
-                            v-model="correo"
+                            v-model="localidad"
                             type="email"
-                            placeholder="nombre@correo.com"
+                            placeholder="Madrid..."
                         />
                     </div>
 
                     <div class="CampoFormulario">
-                        <label for="contrasena">Contraseña</label>
+                        <label for="descripcion">Descripcion</label>
                         <input
-                            id="contrasena"
-                            v-model="contraseña"
-                            type="password"
-                            placeholder="Mínimo 8 caracteres"
+                            v-model="descripcion"
+                            type="text"
+                            placeholder="Descripcion ruta"
                         />
                     </div>
+
+                    <div class="CampoFormulario">
+                        <label for="foto">Foto ruta</label>
+                        <input
+                            type="file"
+                            @change="onFotoChange"
+                        />
+                    </div>
+                    <div class="CampoFormulario">
+                        <label for="fecha">Fecha</label>
+                        <input
+                            v-model="fecha"
+                            type="date"
+                        />
+                    </div>
+                        <div class="CampoFormulario">
+                        <label for="hora">Hora</label>
+                        <input
+                            v-model="hora"
+                            type="time"
+                        />
+                    </div>
+                    <div class="CampoFormulario">
+                        <label for="latitud">Latitud</label>
+                        <input
+                            v-model="latitud"
+                            type="number"
+                        />
+                    </div>
+
+                    <div class="CampoFormulario">
+                        <label for="longitud">Longitud</label>
+                        <input
+                            v-model="longitud"
+                            type="number"
+                        />
+                    </div>
+
 
                     <div class="GrupoAcciones">
                         <button type="submit" class="BotonPrimario">
-                            Crear cuenta
+                            Crear ruta
                         </button>
-                        <button
-                            type="button"
-                            class="BotonSecundario"
-                            @click="irLogin"
-                        >
-                            Ir a iniciar sesión
-                        </button>
+
                     </div>
                 </form>
             </div>
@@ -135,9 +169,11 @@ function irLogin() {
                 />
             </div>
         </div>
-    </section>
-</template>
+ </section>
 
+
+
+</template>
 <style scoped>
 .SeccionRegistro {
     padding: 2.5rem 1.25rem 3.5rem;
@@ -235,4 +271,6 @@ function irLogin() {
         height: 180px;
     }
 }
+
+
 </style>

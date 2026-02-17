@@ -1,48 +1,48 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import { apiUrl } from "../config/api.js";
-// Lo que la persona va escribiendo en los filtros.
+//lo que la persona va escribiendo en los filtros
 const busqueda = ref("");
-// Rol que se ha seleccionado en el filtro de rol.
-const rol = ref("todos");
-// Usuarios que se muestran en la tabla después de aplicar filtros
+//rol que se ha seleccionado en el filtro de rol.
+const rol = ref();
+//usuarios que se muestran en la tabla después de aplicar filtros
 const usuariosBD = ref([]);
 
-// Cargamos usuarios desde la API para pintar la tabla.
+//cargamos usuarios desde la API para pintar la tabla
 async function cargarUsuarios() {
     try {
-        //Hacemos la petición a la API para traer los usuarios.
-        //fetch por defecto hace GET coge datos , asi que no hace falta especificarlo.
+        //hacemos la petición a la API para traer los usuarios
+        //fetch por defecto  promesa que hace GET coge datos , asi que no hace falta especificarlo
         let respuesta = await fetch(apiUrl + "usuarios", {
             method: "GET",
         });
-        // La API responde con un JSON, así que lo convertimos a objeto de JS.
+        //la API responde con un json asique lo convertimos a objeto de javascript
         let datos = await respuesta.json();
         //si datos es un array los metemos en usuariosBD
-        // a Usuarios filtrados le damos el valor de usuariosBD para tenerlos de referencia sin modificar.
+        // a Usuarios filtrados le damos el valor de usuariosbd para tenerlos de referencia sin modificar
         if (Array.isArray(datos)) {
             usuariosBD.value = datos;
-            //si no es un array dejamos la tabla vacía y mostramos un error en consola.
+            //si no es un array dejamos la tabla vacia y mostramos un error en consola
         } else {
             usuariosBD.value = [];
             console.log("Error: la respuesta de la API no es un array");
         }
-        //si hay algún error en la petición o al procesar los datos lo mostramos en consola y dejamos la tabla vacía.
+        //si hay algun error en la petición o al procesar los datos lo mostramos en consola y dejamos la tabla vacia
     } catch (error) {
         console.log("Hubo un error al cargar los usuarios");
         usuariosBD.value = [];
     }
 }
 
-// Borrar usuario y volver a cargar lista para ver cambios al instante.
+//borrar usuario y volver a cargar lista para ver cambios al instante
 function Eliminar(id) {
-    // Pedimos a la API que borre el usuario con el id que le pasamos.
+    //pedimos a la api que borre el usuario con el id que le pasamos
     fetch(apiUrl + "usuarios?id=" + id, {
         method: "DELETE",
     })
-        //la API responde con un JSON, así que lo convertimos a objeto de JS.
+    //convertimos a objeto js porque nos devuelve un jsion 
         .then((response) => response.json())
-        //si la respuesta no es un JSON válido, lo mostramos en consola para depurar.
+        //si la respuesta no es un JSON válido lo mostramos en consola para depurar
         .then((data) => {
             console.log("Usuario eliminado");
             cargarUsuarios(); // recarga la tabla para ver los cambios al instante
@@ -52,9 +52,9 @@ function Eliminar(id) {
         });
 }
 
-// Guardar el rol que acabamos de cambiar desde el select.
+// Guardar el rol que acabamos de cambiar desde el select
 async function guardarUsuario(usuario) {
-    //si el usuario no tiene rol seleccionado, mostramos un error y no hacemos la petición.
+    //si el usuario no tiene rol seleccionado, mostramos un error y no hacemos la petición
     if (!usuario.rol) {
         alert("Selecciona un rol antes de guardar");
         return;
@@ -65,9 +65,9 @@ async function guardarUsuario(usuario) {
     };
 
     try {
-        //hacemos la petición a la API para actualizar el usuario.
+        //hacemos la petición a la API para actualizar el usuario
         const respuesta = await fetch(apiUrl + "usuarios?id=" + usuario.id, {
-            method: "PUT", //el método PUT se usa para actualizar recursos existentes.
+            method: "PUT", //el método PUT se usa para actualizar recursos existentes
             headers: {
                 "Content-Type": "application/json", //indicamos que el cuerpo de la petición es un JSON.
             },
@@ -89,7 +89,7 @@ async function guardarUsuario(usuario) {
                 console.log("Respuesta no es JSON:", textoRespuesta);
             }
         }
-        //si la respuesta no es ok, mostramos un error con el mensaje que venga en el JSON o un mensaje genérico.
+        //si la respuesta no es ok mostramos un error con el mensaje que venga en el json o un mensaje atuomatico.
         if (!respuesta.ok) {
             let mensaje = "Error del servidor al guardar";
 
@@ -111,13 +111,8 @@ async function guardarUsuario(usuario) {
 }
 
 function filtrarUsuarios(busqueda, rol) {
-    // Empezamos con la lista completa de usuarios sin filtrar.
-    let filtrados = [...usuariosBD.value];
-
-    // Si se ha seleccionado un rol específico, filtramos por ese rol.
-    if (rol.value && rol.value !== "todos") {
-        filtrados = filtrados.filter((usuario) => usuario.rol === rol.value);
-    }
+    //empezamos con la lista completa de usuarios sin filtrar
+    let filtrados = usuariosBD;
     if (busqueda.value) {
         const busquedaMinuscula = busqueda.value.toLowerCase();
         filtrados = filtrados.filter(
@@ -126,12 +121,18 @@ function filtrarUsuarios(busqueda, rol) {
                 usuario.email.toLowerCase().includes(busquedaMinuscula),
         );
     }
-    // Actualizamos la lista de usuarios que se muestra en la tabla.
+
+    /*si se ha seleccionado un rol filtramos por ese rol con filter
+    if (rol.value !== "todos") {
+        filtrados = filtrados.filter((usuario) => usuario.rol === rol.value);
+    }
+*/
+    //actualizamos la lista de usuarios que se muestra en la tabla.
     usuariosBD.value = filtrados;
 }
 
 onMounted(function () {
-    // En cuanto entra a la vista, pedimos los usuarios.
+    // en cuanto entra a la vista pedimos los usuarios.
     cargarUsuarios();
 });
 </script>

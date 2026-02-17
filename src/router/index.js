@@ -3,6 +3,8 @@ import HomeView from "../views/HomeView.vue";
 import LoginView from "../views/LoginView.vue";
 import RegistroView from "../components/registro.vue";
 import GestionUsuariosView from "../views/GestionUsuariosView.vue";
+import GestionRutas from "../components/GestionRutas.vue";
+import registroRutas from "../components/registroRutas.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -31,10 +33,23 @@ const router = createRouter({
             name: "registro",
             component: RegistroView,
         },
+
         {
             path: "/usuarios",
             name: "usuarios",
             component: GestionUsuariosView,
+            meta: { requiresAuth: true },
+        },
+        {
+            path: "/rutas",
+            name: "rutas",
+            component: GestionRutas,
+            meta: { requiresAuth: true },
+        },
+        {
+            path: "/registro-rutas",
+            name: "registro-rutas",
+            component: registroRutas,
             meta: { requiresAuth: true },
         },
     ],

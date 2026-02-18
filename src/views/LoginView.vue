@@ -43,11 +43,10 @@ async function enviar() {
 
             //todo OK voamos al inicio
             router.push("/");
-            return;
+        } else {
+            //Si usuario/clave no cuadran mostramos aviso
+            alert(datos.message || "Correo o contraseña incorrectos");
         }
-
-        //Si usuario/clave no cuadran mostramos aviso
-        alert(datos.message || "Correo o contraseña incorrectos");
     } catch (error) {
         console.error("Error en login:", error);
         alert("No se pudo conectar con el servidor");

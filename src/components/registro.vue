@@ -13,14 +13,11 @@ async function enviar() {
     //para no mandar datos vacios
     if (!nombre.value || !correo.value || !contraseña.value) {
         alert("Completa todos los campos");
-        return;
     }
 
     //prueba
     if (contraseña.value.length < 8) {
-        0;
         alert("La contraseña debe tener mínimo 8 caracteres");
-        return;
     }
 
     //edimos usuarios para comprobar si el correo ya está pillado.
@@ -58,10 +55,9 @@ async function enviar() {
             console.log(datos);
 
             router.push("/login");
-            return;
+        } else {
+            alert(datos.message || "No se pudo crear la cuenta");
         }
-
-        alert(datos.message || "No se pudo crear la cuenta");
     } catch (error) {
         console.error("Error en registro:", error);
         alert("No se pudo conectar con el servidor");

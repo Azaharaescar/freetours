@@ -19,22 +19,22 @@ function haySesion() {
 }
 
 function cerrarSesion() {
-    // Cerramos sesión y actualizamos el menú al momento.
+    //cerramos sesión y actualizamos el menu al momento.
     localStorage.removeItem("sesion");
     actualizarSesion();
 
-    // Avisamos al resto de componentes de que la sesión cambió.
+    //avisamos al resto de ficheros de que la sesin cambio
     window.dispatchEvent(new Event("sesionCambiada"));
     router.push("/login");
 }
 
 onMounted(() => {
-    // Nos quedamos escuchando cambios de sesión (login/logout).
+    //nos quedamos escuchando cambios de sesión
     window.addEventListener("sesionCambiada", actualizarSesion);
 });
 
 onBeforeUnmount(() => {
-    // Limpiamos el listener para que no se acumulen eventos duplicados.
+    //limpiamos el listener para que no se acumulen eventos duplicados
     window.removeEventListener("sesionCambiada", actualizarSesion);
 });
 </script>

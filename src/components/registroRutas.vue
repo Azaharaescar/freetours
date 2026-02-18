@@ -16,47 +16,38 @@ const guiasDisponibles = ref([]);
 const router = useRouter();
 
 async function cargarGuiasDisponibles() {
-    /*cuando cambia la fecha traemos solo los guias libres de ese dia
     if (!fecha.value) {
         guiasDisponibles.value = [];
         guiaId.value = "";
-        return;
-    }
+    } else {
+        try {
+            const respuesta = await fetch(
+                apiUrl + "asignaciones?fecha=" + fecha.value,
+                {
+                    method: "GET",
+                },
+            );
+            const datos = await respuesta.json();
 
-    try {
-        const respuesta = await fetch(
-            apiUrl + "asignaciones?fecha=" + fecha.value,
-            {
-                method: "GET",
-            },
-        );
-        const datos = await respuesta.json();
+            if (Array.isArray(datos)) {
+                guiasDisponibles.value = datos;
 
-        if (Array.isArray(datos)) {
-            guiasDisponibles.value = datos;
-
-            let existeGuiaElegido = false;
-            for (let i = 0; i < datos.length; i++) {
-                if (String(datos[i].id) === String(guiaId.value)) {
-                    existeGuiaElegido = true;
+                const ids = datos.map((guia) => guia.id);
+                if (!ids.includes(guiaId.value)) {
+                    guiaId.value = "";
                 }
-            }
-
-            if (!existeGuiaElegido) {
+            } else {
+                guiasDisponibles.value = [];
                 guiaId.value = "";
             }
-        } else {
+        } catch (error) {
+            console.log("Error al cargar guias", error);
             guiasDisponibles.value = [];
             guiaId.value = "";
         }
-    } catch (error) {
-        console.log("Error al cargar guias", error);
-        guiasDisponibles.value = [];
-        guiaId.value = "";
     }
-
-*/
 }
+
 async function enviar() {
     //aqui ponemos un alert porque todos los campos tienen que estrar completos
     if (
@@ -69,7 +60,7 @@ async function enviar() {
         !longitud.value
     ) {
         alert("Completa todos los campos");
-       
+        return;
     }
 
     // montamos el body que usa la api
@@ -77,14 +68,17 @@ async function enviar() {
         titulo: titulo.value,
         localidad: localidad.value,
         descripcion: descripcion.value,
-        foto: foto.value,
         fecha: fecha.value,
         hora: hora.value,
         latitud: latitud.value,
         longitud: longitud.value,
     };
 
-    //guia es opcional y lo puedo seleccionar en la gestion;
+    if (foto.value) {
+        datosRuta.foto = foto.value;
+    }
+
+    //guia se puede seleccionar en la gestion es opcional;
     if (guiaId.value) {
         datosRuta.guia_id = Number(guiaId.value);
     }
@@ -102,11 +96,9 @@ async function enviar() {
 
         if (respuesta.ok) {
             alert("ruta creada correctamente");
+            //redireccionamos a la pagina de rutas para ver la nueva ruta creada
             router.push("/rutas");
-            
-        }
-
-        if (datos && datos.message) {
+        } else if (datos && datos.message) {
             alert(datos.message);
         } else {
             alert("No se pudo crear la ruta");
@@ -156,7 +148,11 @@ async function enviar() {
 
                     <div class="CampoFormulario">
                         <label for="foto">Foto ruta</label>
-                        <input type="file" @change="onFotoChange" />
+                        <input
+                            v-model="foto"
+                            type="text"
+                            placeholder="https://... (solo url de imagen)"
+                        />
                     </div>
 
                     <div class="CampoFormulario">
@@ -190,7 +186,7 @@ async function enviar() {
                             <option
                                 v-for="guia in guiasDisponibles"
                                 :key="guia.id"
-                                :value="String(guia.id)"
+                                :value="guia.id"
                             >
                                 {{ guia.nombre }} - {{ guia.email }}
                             </option>
@@ -308,7 +304,6 @@ async function enviar() {
 
 @media (max-width: 899px) {
     .ImagenLateral {
-        
         height: 180px;
     }
 }

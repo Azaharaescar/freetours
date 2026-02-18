@@ -86,7 +86,6 @@ function irLogin() {
                     <div class="CampoFormulario">
                         <label for="nombre">Nombre completo</label>
                         <input
-                            id="nombre"
                             v-model="nombre"
                             type="text"
                             placeholder="Tu nombre"
@@ -96,7 +95,6 @@ function irLogin() {
                     <div class="CampoFormulario">
                         <label for="correo">Correo</label>
                         <input
-                            id="correo"
                             v-model="correo"
                             type="email"
                             placeholder="nombre@correo.com"
@@ -106,7 +104,6 @@ function irLogin() {
                     <div class="CampoFormulario">
                         <label for="contrasena">Contraseña</label>
                         <input
-                            id="contrasena"
                             v-model="contraseña"
                             type="password"
                             placeholder="Mínimo 8 caracteres"
@@ -231,7 +228,6 @@ function irLogin() {
 
 @media (max-width: 899px) {
     .ImagenLateral {
-      
         height: 180px;
     }
 }

@@ -231,7 +231,7 @@ function irLogin() {
 
 @media (max-width: 899px) {
     .ImagenLateral {
-        order: -1;
+      
         height: 180px;
     }
 }

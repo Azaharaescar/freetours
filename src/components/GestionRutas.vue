@@ -1,66 +1,194 @@
 <script setup>
 import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
 import { apiUrl } from "../config/api.js";
+
+const router = useRouter();
 const rutasBD = ref([]);
+const guiaSeleccionado = ref({});
+const guiasPorFecha = ref({});
+
 async function cargarRutas() {
     try {
-        //hacemos la petición a la API para traer los usuarios
-        //fetch por defecto  promesa que hace GET coge datos , asi que no hace falta especificarlo
-        let respuesta = await fetch(apiUrl + "rutas", {
+        // aqui traemos todas las rutas con asistentes y guia asignado si tiene
+        const respuesta = await fetch(apiUrl + "rutas", {
             method: "GET",
         });
-        //la API responde con un json asique lo convertimos a objeto de javascript
-        let datos = await respuesta.json();
-        //si datos es un array los metemos en usuariosBD
-        // a Usuarios filtrados le damos el valor de usuariosbd para tenerlos de referencia sin modificar
+        const datos = await respuesta.json();
+
         if (Array.isArray(datos)) {
             rutasBD.value = datos;
-            //si no es un array dejamos la tabla vacia y mostramos un error en consola
+            await cargarGuiasParaFechas(datos);
+
+            // guardamos guia actual en el select para cada fila
+            for (let i = 0; i < datos.length; i++) {
+                const ruta = datos[i];
+                if (ruta.guia_id) {
+                    guiaSeleccionado.value[ruta.id] = String(ruta.guia_id);
+                } else {
+                    guiaSeleccionado.value[ruta.id] = "";
+                }
+            }
         } else {
-           rutasBD.value = [];
-            console.log("Error: la respuesta de la API no es un array");
+            rutasBD.value = [];
         }
-        //si hay algun error en la petición o al procesar los datos lo mostramos en consola y dejamos la tabla vacia
     } catch (error) {
-        console.log("Hubo un error al cargar los usuarios");
+        console.log("Hubo un error al cargar rutas", error);
         rutasBD.value = [];
     }
 }
+
+async function cargarGuiasParaFechas(rutas) {
+    // hacemos solo una llamada por fecha para no repetir peticiones
+    const fechasVistas = [];
+
+    for (let i = 0; i < rutas.length; i++) {
+        const fechaRuta = rutas[i].fecha;
+        if (!fechaRuta) {
+            continue;
+        }
+
+        if (fechasVistas.includes(fechaRuta)) {
+            continue;
+        }
+
+        fechasVistas.push(fechaRuta);
+
+        try {
+            const respuesta = await fetch(
+                apiUrl + "asignaciones?fecha=" + fechaRuta,
+                {
+                    method: "GET",
+                },
+            );
+            const datos = await respuesta.json();
+
+            if (Array.isArray(datos)) {
+                guiasPorFecha.value[fechaRuta] = datos;
+            } else {
+                guiasPorFecha.value[fechaRuta] = [];
+            }
+        } catch (error) {
+            guiasPorFecha.value[fechaRuta] = [];
+        }
+    }
+}
+
+function irACrearRuta() {
+    router.push("/registro-rutas");
+}
+
+async function cancelarRuta(id) {
+    // cancelar para este proyecto es eliminar la ruta
+    const confirmar = confirm("¿Seguro que quieres cancelar esta ruta?");
+    if (!confirmar) {
+        return;
+    }
+
+    try {
+        const respuesta = await fetch(apiUrl + "rutas?id=" + id, {
+            method: "DELETE",
+        });
+        const datos = await respuesta.json();
+
+        if (
+            respuesta.ok &&
+            datos &&
+            (datos.status === "success" || datos.message)
+        ) {
+            alert("ruta cancelada");
+            await cargarRutas();
+        } else {
+            alert("No se pudo cancelar la ruta");
+        }
+    } catch (error) {
+        alert("No se pudo conectar con el servidor");
+    }
+}
+
+function guiasParaRuta(ruta) {
+    // metemos guia actual y luego los disponibles de la fecha
+    const resultado = [];
+
+    if (ruta.guia_id && ruta.guia_nombre) {
+        resultado.push({
+            id: ruta.guia_id,
+            nombre: ruta.guia_nombre,
+            email: ruta.guia_email || "",
+        });
+    }
+
+    const disponibles = guiasPorFecha.value[ruta.fecha] || [];
+
+    for (let i = 0; i < disponibles.length; i++) {
+        const guia = disponibles[i];
+        let repetido = false;
+
+        for (let j = 0; j < resultado.length; j++) {
+            if (String(resultado[j].id) === String(guia.id)) {
+                repetido = true;
+            }
+        }
+
+        if (!repetido) {
+            resultado.push(guia);
+        }
+    }
+
+    return resultado;
+}
+
+async function guardarAsignacion(ruta) {
+    const idGuia = guiaSeleccionado.value[ruta.id];
+
+    if (!idGuia) {
+        alert("Elige un guía para guardar la asignación");
+        return;
+    }
+
+    try {
+        const respuesta = await fetch(apiUrl + "asignaciones", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                ruta_id: ruta.id,
+                guia_id: Number(idGuia),
+            }),
+        });
+
+        const datos = await respuesta.json();
+
+        if (
+            respuesta.ok &&
+            datos &&
+            (datos.status === "success" || datos.message)
+        ) {
+            alert("asignación guardada");
+            await cargarRutas();
+        } else {
+            alert("No se pudo guardar la asignación");
+        }
+    } catch (error) {
+        alert("No se pudo conectar con el servidor");
+    }
+}
+
 onMounted(function () {
-    // en cuanto entra a la vista pedimos las rutas.
     cargarRutas();
 });
-
-
 </script>
 <template>
-  <section class="GestionRutasSeccion">
+    <section class="GestionRutasSeccion">
         <div class="CabeceraPanel">
             <div>
                 <h2>Gestión de rutas</h2>
                 <p class="SubtituloPanel">Administración de rutas</p>
             </div>
-        </div>
-
-        <div class="PanelFiltros">
-            <div class="CampoFiltro">
-                <label for="buscar">Buscar</label>
-                <input
-                    v-model="busqueda"
-                    type="text"
-                    placeholder="Titulo"
-                />
-            </div>
-
-
-            <div class="AccionesFiltro">
-                <button
-                    type="button"
-                    class="BotonSecundario"
-                >
-                    Aplicar
-                </button>
-            </div>
+            <button type="button" class="BotonPrincipal" @click="irACrearRuta">
+                Crear ruta
+            </button>
         </div>
 
         <div class="ContenedorTabla">
@@ -71,8 +199,9 @@ onMounted(function () {
                         <th>Titulo</th>
                         <th>Localidad</th>
                         <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Guía</th>
                         <th>Acciones</th>
-
                     </tr>
                 </thead>
                 <tbody>
@@ -81,28 +210,47 @@ onMounted(function () {
                         <td>{{ ruta.titulo }}</td>
                         <td>{{ ruta.localidad }}</td>
                         <td>{{ ruta.fecha }}</td>
+                        <td>{{ ruta.hora }}</td>
                         <td>
-                            <button type="button" @click="Eliminar(usuario.id)">
-                                Eliminar
-                            </button>
-                            <button
-                                type="button"
-                                @click="guardarRuta(ruta)"
-                            >
-                                Guardar
-                            </button>
+                            <select v-model="guiaSeleccionado[ruta.id]">
+                                <option value="">sin guía</option>
+                                <option
+                                    v-for="guia in guiasParaRuta(ruta)"
+                                    :key="guia.id"
+                                    :value="String(guia.id)"
+                                >
+                                    {{ guia.nombre }}
+                                </option>
+                            </select>
                         </td>
+                        <td>
+                            <div class="AccionesTabla">
+                                <button
+                                    type="button"
+                                    class="BotonMini"
+                                    @click="guardarAsignacion(ruta)"
+                                >
+                                    Asignar
+                                </button>
+                                <button
+                                    type="button"
+                                    class="BotonMini EstadoPeligro"
+                                    @click="cancelarRuta(ruta.id)"
+                                >
+                                    Cancelar
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr v-if="rutasBD.length === 0">
+                        <td colspan="7">no hay rutas para mostrar</td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
         <div class="PiePanel">
-            <p>Mostrando rutas</p>
-            <div class="ControlesPaginacion">
-                <button type="button" class="BotonMini">Anterior</button>
-                <button type="button" class="BotonMini">Siguiente</button>
-            </div>
+            <p>Mostrando {{ rutasBD.length }} rutas</p>
         </div>
     </section>
 </template>
@@ -132,39 +280,11 @@ h2 {
     color: #4a5b4f;
 }
 
-.PanelFiltros {
-    background: #ffffff;
-    border: 1px solid #d6e2d8;
-    border-radius: 14px;
-    padding: 1rem;
-    display: grid;
-    gap: 0.85rem;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    align-items: end;
-}
-
-.CampoFiltro {
-    display: grid;
-    gap: 0.35rem;
-}
-
-.CampoFiltro label {
-    font-weight: 600;
-    color: #1f2b24;
-}
-
-.CampoFiltro input,
-.CampoFiltro select {
+td select {
     border: 1px solid #c9d7cc;
     border-radius: 10px;
     padding: 0.6rem 0.75rem;
     background: #f7fbf7;
-}
-
-.AccionesFiltro {
-    display: flex;
-    gap: 0.6rem;
-    flex-wrap: wrap;
 }
 
 .ContenedorTabla {
@@ -177,7 +297,7 @@ h2 {
 table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 760px;
+    min-width: 980px;
 }
 
 th,
@@ -190,26 +310,6 @@ td {
 th {
     background: #f4faf5;
     font-size: 0.92rem;
-}
-
-.EtiquetaEstado {
-    display: inline-flex;
-    align-items: center;
-    border-radius: 999px;
-    padding: 0.2rem 0.65rem;
-    font-size: 0.8rem;
-    background: #e8f3ea;
-    color: #1f4a2d;
-}
-
-.EtiquetaEstado.bloqueado {
-    background: #ffe6e6;
-    color: #8a1f1f;
-}
-
-.EtiquetaEstado.pendiente {
-    background: #fff5d9;
-    color: #7d5a00;
 }
 
 .AccionesTabla {
@@ -228,11 +328,6 @@ th {
 .PiePanel p {
     margin: 0;
     color: #4a5b4f;
-}
-
-.ControlesPaginacion {
-    display: flex;
-    gap: 0.5rem;
 }
 
 .BotonPrincipal,
@@ -257,11 +352,6 @@ th {
     padding: 0.5rem 0.9rem;
 }
 
-.BotonSecundario.EstadoGhost {
-    border-color: #9caf9f;
-    color: #2f3f35;
-}
-
 .BotonMini {
     background: #f7fbf7;
     border-color: #c9d7cc;
@@ -274,5 +364,4 @@ th {
     border-color: #f2c1c1;
     color: #962b2b;
 }
-
 </style>

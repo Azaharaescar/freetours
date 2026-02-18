@@ -61,10 +61,10 @@ onBeforeUnmount(() => {
                     to="/rutas"
                     class="EnlaceNav"
                 >
-                   Rutas
+                    Rutas
                 </router-link>
                 <router-link
-                    v-if="haySesion()"
+                    v-if="usuarioActual && usuarioActual.rol === 'admin'"
                     to="/registro-rutas"
                     class="EnlaceNav"
                 >

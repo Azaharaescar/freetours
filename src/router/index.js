@@ -50,16 +50,35 @@ const router = createRouter({
             path: "/registro-rutas",
             name: "registro-rutas",
             component: registroRutas,
-            meta: { requiresAuth: true },
+            meta: { requiresAuth: true, requiresAdmin: true },
         },
     ],
 });
 
 router.beforeEach((to) => {
     const autenticado = !!localStorage.getItem("sesion");
+    let usuarioSesion = null;
+
+    if (autenticado) {
+        try {
+            usuarioSesion = JSON.parse(localStorage.getItem("sesion"));
+        } catch (error) {
+            usuarioSesion = null;
+        }
+    }
 
     if (to.meta.requiresAuth && !autenticado) {
         return { name: "login" };
+    }
+
+    if (to.meta.requiresAdmin) {
+        if (!usuarioSesion) {
+            return { name: "login" };
+        }
+
+        if (usuarioSesion.rol !== "admin") {
+            return { name: "home" };
+        }
     }
 
     if ((to.name === "login" || to.name === "registro") && autenticado) {

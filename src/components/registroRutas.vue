@@ -12,36 +12,92 @@ const foto = ref("");
 const latitud = ref("");
 const longitud = ref("");
 const guiaId = ref("");
+const guiasDisponibles = ref([]);
+const cargandoGuias = ref(false);
 const router = useRouter();
+
 function onFotoChange(event) {
     const archivo = event.target.files?.[0];
     foto.value = archivo ? archivo.name : "";
 }
 
+async function cargarGuiasDisponibles() {
+    // cuando cambia la fecha traemos solo los guias libres de ese dia
+    if (!fecha.value) {
+        guiasDisponibles.value = [];
+        guiaId.value = "";
+        return;
+    }
+
+    cargandoGuias.value = true;
+
+    try {
+        const respuesta = await fetch(
+            apiUrl + "asignaciones?fecha=" + fecha.value,
+            {
+                method: "GET",
+            },
+        );
+        const datos = await respuesta.json();
+
+        if (Array.isArray(datos)) {
+            guiasDisponibles.value = datos;
+
+            let existeGuiaElegido = false;
+            for (let i = 0; i < datos.length; i++) {
+                if (String(datos[i].id) === String(guiaId.value)) {
+                    existeGuiaElegido = true;
+                }
+            }
+
+            if (!existeGuiaElegido) {
+                guiaId.value = "";
+            }
+        } else {
+            guiasDisponibles.value = [];
+            guiaId.value = "";
+        }
+    } catch (error) {
+        console.log("Error al cargar guias", error);
+        guiasDisponibles.value = [];
+        guiaId.value = "";
+    } finally {
+        cargandoGuias.value = false;
+    }
+}
+
 async function enviar() {
-    // Chequeo rápido para no enviar el formulario a medias.
-    if (!titulo.value || !localidad.value || !fecha.value  || !hora.value || !descripcion.value || !foto.value || !fecha.value || !hora.value || !latitud.value || !longitud.value || !guiaId.value ) {
+    // aqui frenamos envio si falta algo importante
+    if (
+        !titulo.value ||
+        !localidad.value ||
+        !fecha.value ||
+        !hora.value ||
+        !descripcion.value ||
+        !foto.value ||
+        !latitud.value ||
+        !longitud.value
+    ) {
         alert("Completa todos los campos");
         return;
     }
 
-
-    // Pedimos usuarios para comprobar si el correo ya está pillado.
-    const respuestaUsuarios = await fetch(apiUrl + "rutas");
-    const usuarios = await respuestaUsuarios.json();
-
-    // Si todo está bien, montamos los datos para crear la cuenta.
-    const datosUsuario = {
-    titulo: titulo.value,
-    localidad: localidad.value,
-    descripcion: descripcion.value,
-    foto: foto.value,
-    fecha: fecha.value,
-    hora: hora.value,
-    latitud: latitud.value,
-    longitud: longitud.value,
-    guia_id: guiaId.value// ID del guía (opcional)
+    // montamos el body que usa la api
+    const datosRuta = {
+        titulo: titulo.value,
+        localidad: localidad.value,
+        descripcion: descripcion.value,
+        foto: foto.value,
+        fecha: fecha.value,
+        hora: hora.value,
+        latitud: latitud.value,
+        longitud: longitud.value,
     };
+
+    //el guia es opcional y se puede asignar luego en gestion
+    if (guiaId.value) {
+        datosRuta.guia_id = Number(guiaId.value);
+    }
 
     try {
         const respuesta = await fetch(apiUrl + "rutas", {
@@ -49,37 +105,43 @@ async function enviar() {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(datosUsuario),
+            body: JSON.stringify(datosRuta),
         });
 
-        const datos = await respuesta.json();
+        const texto = await respuesta.text();
+        let datos = null;
 
-        // Si se creó bien, mandamos al login para iniciar sesión.
-        if (datos.status === "success" || datos.id || datos.message) {
+        if (texto) {
+            try {
+                datos = JSON.parse(texto);
+            } catch (error) {
+                datos = null;
+            }
+        }
+
+        if (
+            respuesta.ok &&
+            datos &&
+            (datos.status === "success" || datos.message)
+        ) {
             alert("ruta creada correctamente");
-            console.log(datos);
-
-            router.push("/login");
+            router.push("/rutas");
             return;
         }
 
-        alert(datos.message || "No se pudo crear la ruta");
+        if (datos && datos.message) {
+            alert(datos.message);
+        } else {
+            alert("No se pudo crear la ruta");
+        }
     } catch (error) {
-        console.error("Error en registro:", error);
+        console.error("Error al crear ruta", error);
         alert("No se pudo conectar con el servidor");
     }
 }
-
-function irLogin() {
-    router.push("/login");
-}
-
-
- 
-
 </script>
 <template>
-<section class="SeccionRegistro">
+    <section class="SeccionRegistro">
         <div class="TarjetaRegistro">
             <div class="FormularioRegistro">
                 <h2 class="TituloRegistro">Crear ruta</h2>
@@ -101,7 +163,7 @@ function irLogin() {
                         <label for="localidad">Localidad</label>
                         <input
                             v-model="localidad"
-                            type="email"
+                            type="text"
                             placeholder="Madrid..."
                         />
                     </div>
@@ -117,47 +179,54 @@ function irLogin() {
 
                     <div class="CampoFormulario">
                         <label for="foto">Foto ruta</label>
-                        <input
-                            type="file"
-                            @change="onFotoChange"
-                        />
+                        <input type="file" @change="onFotoChange" />
                     </div>
+
                     <div class="CampoFormulario">
                         <label for="fecha">Fecha</label>
                         <input
                             v-model="fecha"
                             type="date"
+                            @change="cargarGuiasDisponibles"
                         />
                     </div>
-                        <div class="CampoFormulario">
+
+                    <div class="CampoFormulario">
                         <label for="hora">Hora</label>
-                        <input
-                            v-model="hora"
-                            type="time"
-                        />
+                        <input v-model="hora" type="time" />
                     </div>
+
                     <div class="CampoFormulario">
                         <label for="latitud">Latitud</label>
-                        <input
-                            v-model="latitud"
-                            type="number"
-                        />
+                        <input v-model="latitud" type="number" />
                     </div>
 
                     <div class="CampoFormulario">
                         <label for="longitud">Longitud</label>
-                        <input
-                            v-model="longitud"
-                            type="number"
-                        />
+                        <input v-model="longitud" type="number" />
                     </div>
 
+                    <div class="CampoFormulario">
+                        <label for="guia">Guía disponible</label>
+                        <select v-model="guiaId">
+                            <option value="">sin asignar</option>
+                            <option
+                                v-for="guia in guiasDisponibles"
+                                :key="guia.id"
+                                :value="String(guia.id)"
+                            >
+                                {{ guia.nombre }} - {{ guia.email }}
+                            </option>
+                        </select>
+                        <small v-if="cargandoGuias"
+                            >cargando guias de esa fecha</small
+                        >
+                    </div>
 
                     <div class="GrupoAcciones">
                         <button type="submit" class="BotonPrimario">
                             Crear ruta
                         </button>
-
                     </div>
                 </form>
             </div>
@@ -169,10 +238,7 @@ function irLogin() {
                 />
             </div>
         </div>
- </section>
-
-
-
+    </section>
 </template>
 <style scoped>
 .SeccionRegistro {
@@ -215,7 +281,8 @@ function irLogin() {
     color: #1f2b24;
 }
 
-.CampoFormulario input {
+.CampoFormulario input,
+.CampoFormulario select {
     border: 1px solid #c9d7cc;
     border-radius: 8px;
     padding: 0.6rem 0.75rem;
@@ -271,6 +338,4 @@ function irLogin() {
         height: 180px;
     }
 }
-
-
 </style>

@@ -111,10 +111,16 @@ function guiasParaRuta(ruta) {
     const resultado = [];
 
     if (ruta.guia_id && ruta.guia_nombre) {
+        let email = "";
+
+        if (ruta.guia_email) {
+            email = ruta.guia_email;
+        }
+
         resultado.push({
             id: ruta.guia_id,
             nombre: ruta.guia_nombre,
-            email: ruta.guia_email || "",
+            email: email,
         });
     }
 

@@ -13,12 +13,21 @@ const latitud = ref("");
 const longitud = ref("");
 const guiaId = ref("");
 const guiasDisponibles = ref([]);
-const cargandoGuias = ref(false);
 const router = useRouter();
 
 function onFotoChange(event) {
-    const archivo = event.target.files?.[0];
-    foto.value = archivo ? archivo.name : "";
+    // aqui lo hacemos a mano para que se vea claro sin operadores raros
+    let archivo = null;
+
+    if (event.target && event.target.files && event.target.files.length > 0) {
+        archivo = event.target.files[0];
+    }
+
+    if (archivo) {
+        foto.value = archivo.name;
+    } else {
+        foto.value = "";
+    }
 }
 
 async function cargarGuiasDisponibles() {
@@ -28,8 +37,6 @@ async function cargarGuiasDisponibles() {
         guiaId.value = "";
         return;
     }
-
-    cargandoGuias.value = true;
 
     try {
         const respuesta = await fetch(
@@ -61,8 +68,6 @@ async function cargarGuiasDisponibles() {
         console.log("Error al cargar guias", error);
         guiasDisponibles.value = [];
         guiaId.value = "";
-    } finally {
-        cargandoGuias.value = false;
     }
 }
 
@@ -108,22 +113,9 @@ async function enviar() {
             body: JSON.stringify(datosRuta),
         });
 
-        const texto = await respuesta.text();
-        let datos = null;
+        const datos = await respuesta.json();
 
-        if (texto) {
-            try {
-                datos = JSON.parse(texto);
-            } catch (error) {
-                datos = null;
-            }
-        }
-
-        if (
-            respuesta.ok &&
-            datos &&
-            (datos.status === "success" || datos.message)
-        ) {
+        if (respuesta.ok) {
             alert("ruta creada correctamente");
             router.push("/rutas");
             return;
@@ -218,9 +210,6 @@ async function enviar() {
                                 {{ guia.nombre }} - {{ guia.email }}
                             </option>
                         </select>
-                        <small v-if="cargandoGuias"
-                            >cargando guias de esa fecha</small
-                        >
                     </div>
 
                     <div class="GrupoAcciones">

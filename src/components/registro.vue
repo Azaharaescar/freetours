@@ -121,7 +121,7 @@ function irLogin() {
                 </form>
             </div>
 
-            <div class="ImagenLateral" aria-hidden="true">
+            <div class="ImagenLateral">
                 <img
                     src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80"
                     alt="Imagen decorativa"

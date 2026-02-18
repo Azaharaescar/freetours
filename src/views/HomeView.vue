@@ -23,18 +23,17 @@ function irRegistro() {
                     experiencias guiadas con vistas inolvidables.
                 </p>
 
-                <div class="BuscadorTours" aria-label="Buscador de tours">
+                <div class="BuscadorTours">
                     <input
                         type="search"
                         name="q"
                         placeholder="Ej: Granada, gastronomia, casco historico, montañas..."
-                        aria-label="Buscar tours"
                     />
                     <button type="button">Buscar</button>
                 </div>
 
-                <div class="AccesosRapidos" aria-label="Accesos visuales">
-                    <button 
+                <div class="AccesosRapidos">
+                    <button
                         class="BotonPildora BotonPrincipal"
                         type="button"
                         @click="irLogin"
@@ -51,7 +50,7 @@ function irRegistro() {
                 </div>
             </div>
 
-            <div class="CarruselPaisajes" aria-label="Carrusel de paisajes">
+            <div class="CarruselPaisajes">
                 <div class="SlideImagen SlideA">
                     <img
                         src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80"

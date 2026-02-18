@@ -101,7 +101,7 @@ function irRegistro() {
                 </form>
             </div>
 
-            <div class="ImagenLateral" aria-hidden="true">
+            <div class="ImagenLateral">
                 <img
                     src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80"
                     alt=""

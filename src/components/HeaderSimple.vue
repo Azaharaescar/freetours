@@ -43,7 +43,7 @@ onBeforeUnmount(() => {
     <header class="EncabezadoSimple">
         <div class="ContenedorEncabezado">
             <div class="MarcaSitio">
-                <div class="CajaLogo" aria-hidden="true">Logo</div>
+                <div class="CajaLogo">Logo</div>
                 <h1>FreeTours</h1>
             </div>
             <nav>

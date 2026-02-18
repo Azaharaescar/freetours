@@ -5,12 +5,12 @@ import { apiUrl } from "../config/api.js";
 
 const router = useRouter();
 const rutasBD = ref([]);
-const guiaSeleccionado = ref({});
-const guiasPorFecha = ref({});
+const guiaSeleccionado = ref({}); //guardamos guia seleccionado para cada ruta en este objeto con id de ruta como clave
+const guiasPorFecha = ref({});// guardamos guias disponibles por fecha para no repetir peticiones
 
 async function cargarRutas() {
     try {
-        // aqui traemos todas las rutas con asistentes y guia asignado si tiene
+        //aqui traemos todas las rutas con asistentes y guia asignado si tiene
         const respuesta = await fetch(apiUrl + "rutas", {
             method: "GET",
         });
@@ -20,11 +20,12 @@ async function cargarRutas() {
             rutasBD.value = datos;
             await cargarGuiasParaFechas(datos);
 
-            // guardamos guia actual en el select para cada fila
+            //guardamos guia actul en el select para cada fila
             for (let i = 0; i < datos.length; i++) {
                 const ruta = datos[i];
+                //guardamos guia actual en el select para cada fila
                 if (ruta.guia_id) {
-                    guiaSeleccionado.value[ruta.id] = String(ruta.guia_id);
+                    guiaSeleccionado.value[ruta.id] = String(ruta.guia_id);// el select funciona con string asi que convertimos a string para que salga seleccionado
                 } else {
                     guiaSeleccionado.value[ruta.id] = "";
                 }
@@ -39,21 +40,18 @@ async function cargarRutas() {
 }
 
 async function cargarGuiasParaFechas(rutas) {
-    // hacemos solo una llamada por fecha para no repetir peticiones
+    //hacemos solo una llamada por fecha para no repetir peticiones
     const fechasVistas = [];
-
+//recorremos rutas y vamos cargando guias disponibles para cada fecha
     for (let i = 0; i < rutas.length; i++) {
         const fechaRuta = rutas[i].fecha;
-        if (!fechaRuta) {
-            continue;
-        }
 
         if (fechasVistas.includes(fechaRuta)) {
             continue;
         }
-
+// guardamos fecha para no repetirla en siguientes iteraciones
         fechasVistas.push(fechaRuta);
-
+//  cargamos guias disponibles para esta fecha
         try {
             const respuesta = await fetch(
                 apiUrl + "asignaciones?fecha=" + fechaRuta,
@@ -61,6 +59,7 @@ async function cargarGuiasParaFechas(rutas) {
                     method: "GET",
                 },
             );
+
             const datos = await respuesta.json();
 
             if (Array.isArray(datos)) {
@@ -68,7 +67,9 @@ async function cargarGuiasParaFechas(rutas) {
             } else {
                 guiasPorFecha.value[fechaRuta] = [];
             }
+
         } catch (error) {
+            console.log("Error al cargar guias para fecha " + fechaRuta, error);
             guiasPorFecha.value[fechaRuta] = [];
         }
     }
@@ -79,10 +80,10 @@ function irACrearRuta() {
 }
 
 async function cancelarRuta(id) {
-    // cancelar para este proyecto es eliminar la ruta
+    
     const confirmar = confirm("¿Seguro que quieres cancelar esta ruta?");
     if (!confirmar) {
-        return;
+      
     }
 
     try {
@@ -109,18 +110,12 @@ async function cancelarRuta(id) {
 function guiasParaRuta(ruta) {
     // metemos guia actual y luego los disponibles de la fecha
     const resultado = [];
-
-    if (ruta.guia_id && ruta.guia_nombre) {
-        let email = "";
-
-        if (ruta.guia_email) {
-            email = ruta.guia_email;
-        }
-
+//si la ruta ya tiene guia asignado lo ponemos el primero para que salga seleccionado en el select
+    if (ruta.guia_id && ruta.guia_nombre && ruta.guia_email) {
         resultado.push({
             id: ruta.guia_id,
             nombre: ruta.guia_nombre,
-            email: email,
+            email: ruta.guia_email,
         });
     }
 
@@ -149,7 +144,7 @@ async function guardarAsignacion(ruta) {
 
     if (!idGuia) {
         alert("Elige un guía para guardar la asignación");
-        return;
+        
     }
 
     try {
@@ -240,7 +235,7 @@ onMounted(function () {
                                 </button>
                                 <button
                                     type="button"
-                                    class="BotonMini EstadoPeligro"
+                                    class="BotonPeligro"
                                     @click="cancelarRuta(ruta.id)"
                                 >
                                     Cancelar
@@ -365,9 +360,10 @@ th {
     padding: 0.35rem 0.75rem;
 }
 
-.BotonMini.EstadoPeligro {
+.botonPeligro {
     background: #fff0f0;
     border-color: #f2c1c1;
     color: #962b2b;
+   
 }
 </style>

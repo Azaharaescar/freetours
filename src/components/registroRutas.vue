@@ -15,23 +15,8 @@ const guiaId = ref("");
 const guiasDisponibles = ref([]);
 const router = useRouter();
 
-function onFotoChange(event) {
-    // aqui lo hacemos a mano para que se vea claro sin operadores raros
-    let archivo = null;
-
-    if (event.target && event.target.files && event.target.files.length > 0) {
-        archivo = event.target.files[0];
-    }
-
-    if (archivo) {
-        foto.value = archivo.name;
-    } else {
-        foto.value = "";
-    }
-}
-
 async function cargarGuiasDisponibles() {
-    // cuando cambia la fecha traemos solo los guias libres de ese dia
+    /*cuando cambia la fecha traemos solo los guias libres de ese dia
     if (!fecha.value) {
         guiasDisponibles.value = [];
         guiaId.value = "";
@@ -69,22 +54,22 @@ async function cargarGuiasDisponibles() {
         guiasDisponibles.value = [];
         guiaId.value = "";
     }
-}
 
+*/
+}
 async function enviar() {
-    // aqui frenamos envio si falta algo importante
+    //aqui ponemos un alert porque todos los campos tienen que estrar completos
     if (
         !titulo.value ||
         !localidad.value ||
         !fecha.value ||
         !hora.value ||
         !descripcion.value ||
-        !foto.value ||
         !latitud.value ||
         !longitud.value
     ) {
         alert("Completa todos los campos");
-        return;
+       
     }
 
     // montamos el body que usa la api
@@ -99,7 +84,7 @@ async function enviar() {
         longitud: longitud.value,
     };
 
-    //el guia es opcional y se puede asignar luego en gestion
+    //guia es opcional y lo puedo seleccionar en la gestion;
     if (guiaId.value) {
         datosRuta.guia_id = Number(guiaId.value);
     }
@@ -118,7 +103,7 @@ async function enviar() {
         if (respuesta.ok) {
             alert("ruta creada correctamente");
             router.push("/rutas");
-            return;
+            
         }
 
         if (datos && datos.message) {
@@ -190,12 +175,12 @@ async function enviar() {
 
                     <div class="CampoFormulario">
                         <label for="latitud">Latitud</label>
-                        <input v-model="latitud" type="number" />
+                        <input v-model="latitud" type="number" step="any" />
                     </div>
 
                     <div class="CampoFormulario">
                         <label for="longitud">Longitud</label>
-                        <input v-model="longitud" type="number" />
+                        <input v-model="longitud" type="number" step="any" />
                     </div>
 
                     <div class="CampoFormulario">

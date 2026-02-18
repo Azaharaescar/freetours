@@ -1,14 +1,14 @@
 <template>
     <footer class="footer-simple">
         <div class="container">
-            <p>© {{ year }} FreeTours — Todos los derechos reservados.</p>
+            <p>© {{ year }} FreeTours — Azahara Escribano Carvajal.</p>
         </div>
     </footer>
 </template>
 
 <script setup>
 import { ref } from "vue";
-// Año automático para no tener que tocarlo cada enero.
+
 const year = new Date().getFullYear();
 </script>
 

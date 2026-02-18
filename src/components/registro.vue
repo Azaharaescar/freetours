@@ -10,20 +10,20 @@ const contraseña = ref("");
 const router = useRouter();
 
 async function enviar() {
-    // Chequeo rápido para no enviar el formulario a medias.
+    //para no mandar datos vacios
     if (!nombre.value || !correo.value || !contraseña.value) {
         alert("Completa todos los campos");
         return;
     }
 
-    // Regla mínima: contraseña con al menos 8 caracteres.
+    //prueba
     if (contraseña.value.length < 8) {
         0;
         alert("La contraseña debe tener mínimo 8 caracteres");
         return;
     }
 
-    // Pedimos usuarios para comprobar si el correo ya está pillado.
+    //edimos usuarios para comprobar si el correo ya está pillado.
     const respuestaUsuarios = await fetch(apiUrl + "usuarios");
     const usuarios = await respuestaUsuarios.json();
     const emailForm = correo.value.trim();
@@ -34,7 +34,7 @@ async function enviar() {
         }
     }
 
-    // Si todo está bien, montamos los datos para crear la cuenta.
+    // si todo está bien montamos los datos para crear la cuenta.
     const datosUsuario = {
         nombre: nombre.value.trim(),
         email: correo.value.trim(),
@@ -52,7 +52,7 @@ async function enviar() {
 
         const datos = await respuesta.json();
 
-        // Si se creó bien, mandamos al login para iniciar sesión.
+        //Si se creo bien mandamos al login para iniciar sesión.
         if (datos.status === "success" || datos.id || datos.message) {
             alert("Cuenta creada correctamente");
             console.log(datos);

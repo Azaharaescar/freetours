@@ -11,12 +11,12 @@ const usuariosBD = ref([]);
 //cargamos usuarios desde la API para pintar la tabla
 async function cargarUsuarios() {
     try {
-        //hacemos la petición a la API para traer los usuarios
+        //hacemos la petición a la api para traer los usuarios
         //fetch por defecto  promesa que hace GET coge datos , asi que no hace falta especificarlo
         let respuesta = await fetch(apiUrl + "usuarios", {
             method: "GET",
         });
-        //la API responde con un json asique lo convertimos a objeto de javascript
+        //la api responde con un json asique lo convertimos a objeto de javascript
         let datos = await respuesta.json();
         //si datos es un array los metemos en usuariosBD
         // a Usuarios filtrados le damos el valor de usuariosbd para tenerlos de referencia sin modificar
@@ -52,36 +52,36 @@ function Eliminar(id) {
         });
 }
 
-// Guardar el rol que acabamos de cambiar desde el select
+//Guardar el rol que acabamos de cambiar desde el select
 async function guardarUsuario(usuario) {
     //si el usuario no tiene rol seleccionado, mostramos un error y no hacemos la petición
     if (!usuario.rol) {
         alert("Selecciona un rol antes de guardar");
         return;
     }
-    //preparamos los datos que vamos a enviar a la API para actualizar el usuario.
+    //preparamos los datos que vamos a enviar a la apii para actualizar el usuario.
     const datosActualizados = {
         rol: usuario.rol,
     };
 
     try {
-        //hacemos la petición a la API para actualizar el usuario
+        //hacemos la petición a la apo para actualizar el usuario
         const respuesta = await fetch(apiUrl + "usuarios?id=" + usuario.id, {
-            method: "PUT", //el método PUT se usa para actualizar recursos existentes
+            method: "PUT", //el método put se usa para actualizar recursos existentes
             headers: {
-                "Content-Type": "application/json", //indicamos que el cuerpo de la petición es un JSON.
+                "Content-Type": "application/json", //indicamos que el cuerpo de la petición es un json.
             },
-            //convertimos los datos actualizados a JSON para enviarlos en el cuerpo de la petición.
+            //convertimos los datos actualizados a json para enviarlos en el cuerpo de la petición.
             body: JSON.stringify(datosActualizados),
         });
-        //la API responde con un JSON, así que lo convertimos a objeto de JS.
+        //la api responde con un json asique lo convertimos a objeto de JS.
         const textoRespuesta = await respuesta.text();
         //let data = null para poder usarlo en el bloque de código siguiente
-        //donde si la respuesta es un JSON válido lo asignamos a data
+        //donde si la respuesta es un json válido lo asignamos a data
         //  y si no lo es mostramos el texto de la respuesta en consola para depurar.
         let data = null;
 
-        //si la respuesta tiene texto, intentamos convertirlo a JSON.
+        //si la respuesta tiene texto intentamos convertirlo a json.
         if (textoRespuesta) {
             try {
                 data = JSON.parse(textoRespuesta);
@@ -203,10 +203,11 @@ onMounted(function () {
                         </td>
 
                         <td>
-                            <button type="button" @click="Eliminar(usuario.id)">
+                            <button  class="EstadoPeligro" type="button" @click="Eliminar(usuario.id)">
                                 Eliminar
                             </button>
                             <button
+                            class="EstadoGuardar"
                                 type="button"
                                 @click="guardarUsuario(usuario)"
                             >
@@ -391,7 +392,7 @@ th {
     padding: 0.35rem 0.75rem;
 }
 
-.BotonMini.EstadoPeligro {
+.EstadoPeligro {
     background: #fff0f0;
     border-color: #f2c1c1;
     color: #962b2b;

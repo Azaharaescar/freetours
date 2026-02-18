@@ -2,20 +2,20 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { apiUrl } from "../config/api.js";
-// Lo que la persona va escribiendo en el formulario.
+//Lo que la persona va escribiendo en el formulario
 
 const correo = ref("");
 const contraseña = ref("");
 const router = useRouter();
 
 async function enviar() {
-    // Si falta algo, ni llamamos a la API y avisamos directo.
+    //si falta algo ni llamamos a la api y avisamos directo
     if (!correo.value || !contraseña.value) {
         alert("Rellena correo y contraseña");
         return;
     }
 
-    // Armamos los datos tal cual los espera el backend.
+    //armamos los datos tal cual los espera el backend
     const datosLogin = {
         email: correo.value.trim(),
         contraseña: contraseña.value,
@@ -35,18 +35,18 @@ async function enviar() {
         console.log(datos);
 
         if (datos.status === "success") {
-            // Guardamos sesión para que siga logueado al cambiar de vista.
+            //guardamos sesión para que siga logueado al cambiar de vista
             localStorage.setItem("sesion", JSON.stringify(datos.user));
 
-            // Le avisamos al header para que se actualice en caliente.
+            //le avisamos al header para que se actualice en caliente
             window.dispatchEvent(new Event("sesionCambiada"));
 
-            // Todo OK, volvemos al inicio.
+            //todo OK voamos al inicio
             router.push("/");
             return;
         }
 
-        // Si usuario/clave no cuadran, mostramos aviso.
+        //Si usuario/clave no cuadran mostramos aviso
         alert(datos.message || "Correo o contraseña incorrectos");
     } catch (error) {
         console.error("Error en login:", error);
@@ -65,7 +65,7 @@ function irRegistro() {
             <div class="FormularioAcceso">
                 <h2>Iniciar sesion</h2>
                 <p class="TextoNota">
-                    Accede a tu cuenta para gestionar tus reservas.
+                    Accede a tu cuenta para gestionar tus reservas
                 </p>
 
                 <form @submit.prevent="enviar">

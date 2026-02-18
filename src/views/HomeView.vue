@@ -34,7 +34,7 @@ function irRegistro() {
                 </div>
 
                 <div class="AccesosRapidos" aria-label="Accesos visuales">
-                    <button
+                    <button 
                         class="BotonPildora BotonPrincipal"
                         type="button"
                         @click="irLogin"

@@ -20,10 +20,9 @@ async function cargarRutas() {
             rutasBD.value = datos;
             await cargarGuiasParaFechas(datos);
 
-            //guardamos guia actul en el select para cada fila
             for (let i = 0; i < datos.length; i++) {
                 const ruta = datos[i];
-                //guardamos guia actual en el select para cada fila
+              
                 if (ruta.guia_id) {
                     guiaSeleccionado.value[ruta.id] = String(ruta.guia_id);// el select funciona con string asi que convertimos a string para que salga seleccionado
                 } else {

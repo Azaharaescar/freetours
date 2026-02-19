@@ -1,7 +1,48 @@
 <script setup>
+import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
+import { apiUrl } from "../config/api.js";
 
 const router = useRouter();
+const textoBusqueda = ref("");
+const rutas = ref([]);
+const cargando = ref(false);
+
+async function cargarRutas(localidad) {
+    cargando.value = true;
+
+    let url = apiUrl + "rutas";
+    if (localidad) {
+        url = apiUrl + "rutas?localidad=" + encodeURIComponent(localidad);
+    }
+
+    try {
+        const respuesta = await fetch(url, {
+            method: "GET",
+        });
+
+        if (!respuesta.ok) {
+            throw new Error("No se pudieron cargar las rutas");
+        }
+
+        const datos = await respuesta.json();
+
+        if (Array.isArray(datos)) {
+            rutas.value = datos;
+        } else {
+            rutas.value = [];
+        }
+    } catch (error) {
+        console.error("Error al cargar rutas:", error);
+        rutas.value = [];
+    }
+
+    cargando.value = false;
+}
+
+onMounted(() => {
+    cargarRutas("");
+});
 
 function irLogin() {
     router.push("/login");
@@ -10,38 +51,188 @@ function irLogin() {
 function irRegistro() {
     router.push("/registro");
 }
+
+function buscarPorLocalidad() {
+    let localidad = "";
+
+    if (textoBusqueda.value) {
+        localidad = textoBusqueda.value.trim();
+    }
+
+    if (localidad) {
+        localStorage.setItem("busquedaLocalidad", localidad);
+    } else {
+        localStorage.removeItem("busquedaLocalidad");
+    }
+
+    router.push("/buscar");
+}
+
+function obtenerImagen(ruta) {
+    if (ruta && typeof ruta === "object") {
+        if (typeof ruta.foto === "string") {
+            if (ruta.foto !== "") {
+                return ruta.foto;
+            }
+        }
+    }
+
+    return "https://images.unsplash.com/photo-1488085061387-422e29b40080?auto=format&fit=crop&w=1200&q=80";
+}
+
+function textoTitulo(ruta) {
+    let texto = "";
+
+    if (ruta && ruta.titulo) {
+        texto = ruta.titulo;
+    } else {
+        texto = "Tour";
+    }
+
+    return texto;
+}
+
+function textoLocalidad(ruta) {
+    let texto = "";
+
+    if (ruta && ruta.localidad) {
+        texto = ruta.localidad;
+    } else {
+        texto = "Localidad no disponible";
+    }
+
+    return texto;
+}
+
+function textoDescripcion(ruta) {
+    let texto = "";
+
+    if (ruta && ruta.descripcion) {
+        texto = ruta.descripcion;
+    } else {
+        texto = "Descripción no disponible";
+    }
+
+    return texto;
+}
+
+function textoFecha(ruta) {
+    let texto = "";
+
+    if (ruta && ruta.fecha) {
+        texto = ruta.fecha;
+    } else {
+        texto = "Sin fecha";
+    }
+
+    return texto;
+}
+
+function textoHora(ruta) {
+    let texto = "";
+
+    if (ruta && ruta.hora) {
+        texto = ruta.hora;
+    } else {
+        texto = "Sin hora";
+    }
+
+    return texto;
+}
 </script>
 
 <template>
-    <section class="InicioSeccion">
-        <div class="HeroPrincipal">
-            <div class="HeroTexto">
-                <p class="TextoFecha">11 de febrero de 2026</p>
-                <h1>Encuentra tu proximo free tour</h1>
-                <p class="TextoIntro">
-                    Busca rutas por ciudad, tema o duracion. Descubre
-                    experiencias guiadas con vistas inolvidables.
-                </p>
-
-                <div class="BuscadorTours">
-                    <input
-                        type="search"
-                        name="q"
-                        placeholder="Ej: Granada, gastronomia, casco historico, montañas..."
-                    />
-                    <button type="button">Buscar</button>
+    <section class="container py-4 py-md-5">
+        <div class="position-relative rounded-4 overflow-hidden shadow">
+            <div
+                id="homeCarousel"
+                class="carousel slide"
+                data-bs-ride="carousel"
+            >
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <img
+                            src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1800&q=80"
+                            class="d-block w-100 imagen-carrusel"
+                            alt="Paisaje natural"
+                        />
+                    </div>
+                    <div class="carousel-item">
+                        <img
+                            src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=80"
+                            class="d-block w-100 imagen-carrusel"
+                            alt="Montañas"
+                        />
+                    </div>
                 </div>
+                <button
+                    class="carousel-control-prev"
+                    type="button"
+                    data-bs-target="#homeCarousel"
+                    data-bs-slide="prev"
+                >
+                    <span
+                        class="carousel-control-prev-icon"
+                        aria-hidden="true"
+                    />
+                    <span class="visually-hidden">Anterior</span>
+                </button>
+                <button
+                    class="carousel-control-next"
+                    type="button"
+                    data-bs-target="#homeCarousel"
+                    data-bs-slide="next"
+                >
+                    <span
+                        class="carousel-control-next-icon"
+                        aria-hidden="true"
+                    />
+                    <span class="visually-hidden">Siguiente</span>
+                </button>
+            </div>
 
-                <div class="AccesosRapidos">
+            <div class="capa-oscura" />
+
+            <div class="buscador-superpuesto container px-3">
+                <h1 class="text-white fw-bold mb-2">
+                    Encuentra tu próximo free tour
+                </h1>
+                <p class="text-white mb-3">
+                    Busca por ciudad, título o descripción y descubre nuevas
+                    rutas.
+                </p>
+                <form
+                    class="row g-2 justify-content-center"
+                    @submit.prevent="buscarPorLocalidad"
+                >
+                    <div class="col-12 col-md-8 col-lg-7">
+                        <input
+                            v-model="textoBusqueda"
+                            type="search"
+                            class="form-control form-control-lg"
+                            placeholder="Ej: Jaén..."
+                        />
+                    </div>
+                    <div class="col-12 col-md-auto d-grid">
+                        <button
+                            type="submit"
+                            class="btn btn-primary btn-lg px-4"
+                        >
+                            Buscar
+                        </button>
+                    </div>
+                </form>
+
+                <div class="d-flex gap-2 justify-content-center flex-wrap mt-3">
                     <button
-                        class="BotonPildora BotonPrincipal"
+                        class="btn btn-light"
                         type="button"
                         @click="irLogin"
                     >
-                        Iniciar sesion
+                        Iniciar sesión
                     </button>
                     <button
-                        class="BotonPildora BotonSecundario"
+                        class="btn btn-outline-light"
                         type="button"
                         @click="irRegistro"
                     >
@@ -49,19 +240,56 @@ function irRegistro() {
                     </button>
                 </div>
             </div>
+        </div>
 
-            <div class="CarruselPaisajes">
-                <div class="SlideImagen SlideA">
+        <div
+            class="d-flex justify-content-between align-items-center mt-4 mb-3"
+        >
+            <h2 class="h4 m-0">Tours disponibles</h2>
+            <span class="badge text-bg-secondary"
+                >{{ rutas.length }} resultado(s)</span
+            >
+        </div>
+
+        <div v-if="cargando" class="text-center py-5">
+            <div class="spinner-border" role="status" aria-hidden="true" />
+        </div>
+
+        <div v-else-if="rutas.length === 0" class="alert alert-light border">
+            No se encontraron tours con esa búsqueda.
+        </div>
+
+        <div v-else class="row g-4">
+            <div
+                v-for="ruta in rutas"
+                :key="ruta.id"
+                class="col-12 col-md-6 col-lg-4"
+            >
+                <div class="card h-100 shadow-sm">
                     <img
-                        src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80"
-                        alt="Montañas al amanecer"
+                        :src="obtenerImagen(ruta)"
+                        class="card-img-top imagen-tarjeta"
+                        :alt="textoTitulo(ruta)"
                     />
-                </div>
-                <div class="SlideImagen SlideB">
-                    <img
-                        src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80"
-                        alt="Valle con neblina"
-                    />
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title mb-2">
+                            {{ textoTitulo(ruta) }}
+                        </h5>
+                        <p class="card-text text-secondary mb-2">
+                            {{ textoLocalidad(ruta) }}
+                        </p>
+                        <p class="card-text mb-3">
+                            {{ textoDescripcion(ruta) }}
+                        </p>
+                        <div class="mt-auto">
+                            <span class="badge text-bg-light me-2">{{
+                                textoFecha(ruta)
+                            }}</span>
+                            <span class="badge text-bg-light">{{
+                                textoHora(ruta)
+                            }}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -69,151 +297,37 @@ function irRegistro() {
 </template>
 
 <style scoped>
-.InicioSeccion {
-    padding: 2.5rem 1.25rem 3.5rem;
+.imagen-carrusel {
+    height: 500px;
+    object-fit: cover;
 }
 
-.HeroPrincipal {
-    max-width: 1100px;
-    margin: 0 auto;
-    display: grid;
-    gap: 2rem;
-    align-items: center;
-}
-
-.HeroTexto {
-    display: grid;
-    gap: 1rem;
-}
-
-.TextoFecha {
-    text-transform: uppercase;
-    letter-spacing: 0.2em;
-    font-size: 0.75rem;
-    color: #2e2d2b;
-}
-
-.TextoIntro {
-    max-width: 38ch;
-    color: #1e1d1b;
-    font-size: 1.1rem;
-    line-height: 1.6;
-}
-
-.BuscadorTours {
-    display: grid;
-    gap: 0.75rem;
-    grid-template-columns: 1fr;
-}
-
-.BuscadorTours input {
-    border: 1px solid #c9c3b8;
-    border-radius: 999px;
-    padding: 0.85rem 1.1rem;
-    background: #fffdf8;
-    font-size: 1rem;
-}
-
-.BuscadorTours button {
-    border: none;
-    border-radius: 999px;
-    padding: 0.85rem 1.4rem;
-    background: #0f1f2d;
-    color: #f7f2e8;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    cursor: pointer;
-}
-
-.AccesosRapidos {
-    display: flex;
-    gap: 0.85rem;
-    flex-wrap: wrap;
-}
-
-.BotonPildora {
-    border-radius: 999px;
-    padding: 0.65rem 1.4rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    cursor: pointer;
-    border: 1px solid transparent;
-    background: transparent;
-}
-
-.BotonPildora.BotonPrincipal {
-    background: #0f1f2d;
-    color: #f7f2e8;
-}
-
-.BotonPildora.BotonSecundario {
-    border-color: #0f1f2d;
-    color: #0f1f2d;
-}
-
-.CarruselPaisajes {
-    position: relative;
-    border-radius: 24px;
-    overflow: hidden;
-    aspect-ratio: 4 / 3;
-    box-shadow: 0 30px 70px rgba(15, 31, 45, 0.2);
-}
-
-.SlideImagen {
+.capa-oscura {
     position: absolute;
     inset: 0;
-    opacity: 0;
-    animation: fade 10s infinite;
+    background: rgba(0, 0, 0, 0.35);
+    pointer-events: none;
 }
 
-.SlideImagen img {
-    width: 100%;
-    height: 100%;
+.buscador-superpuesto {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    z-index: 2;
+}
+
+.imagen-tarjeta {
+    height: 220px;
     object-fit: cover;
-    display: block;
 }
 
-.SlideA {
-    animation-delay: 0s;
-}
-
-.SlideB {
-    animation-delay: 5s;
-}
-
-@keyframes fade {
-    0%,
-    10% {
-        opacity: 1;
-    }
-    45%,
-    55% {
-        opacity: 0;
-    }
-    90%,
-    100% {
-        opacity: 1;
-    }
-}
-
-@media (min-width: 900px) {
-    .HeroPrincipal {
-        grid-template-columns: 1.1fr 0.9fr;
-    }
-
-    .BuscadorTours {
-        grid-template-columns: 1fr auto;
-        align-items: center;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .SlideImagen {
-        animation: none;
-        opacity: 1;
-    }
-    .SlideB {
-        display: none;
+@media (max-width: 767.98px) {
+    .imagen-carrusel {
+        height: 420px;
     }
 }
 </style>

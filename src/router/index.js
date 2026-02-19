@@ -3,6 +3,7 @@ import HomeView from "../views/HomeView.vue";
 import LoginView from "../views/LoginView.vue";
 import RegistroView from "../components/registro.vue";
 import GestionUsuariosView from "../views/GestionUsuariosView.vue";
+import BusquedaLocalidadView from "../views/BusquedaLocalidadView.vue";
 import GestionRutas from "../components/GestionRutas.vue";
 import registroRutas from "../components/registroRutas.vue";
 
@@ -32,6 +33,11 @@ const router = createRouter({
             path: "/registro",
             name: "registro",
             component: RegistroView,
+        },
+        {
+            path: "/buscar",
+            name: "buscar-localidad",
+            component: BusquedaLocalidadView,
         },
 
         {

@@ -13,14 +13,16 @@ async function enviar() {
     //para no mandar datos vacios
     if (!nombre.value || !correo.value || !contraseña.value) {
         alert("Completa todos los campos");
+        return;
     }
 
     //prueba
     if (contraseña.value.length < 8) {
         alert("La contraseña debe tener mínimo 8 caracteres");
+        return;
     }
 
-    //edimos usuarios para comprobar si el correo ya está pillado.
+    //Pedimos usuarios para comprobar si el correo ya está pillado.
     const respuestaUsuarios = await fetch(apiUrl + "usuarios");
     const usuarios = await respuestaUsuarios.json();
     const emailForm = correo.value.trim();

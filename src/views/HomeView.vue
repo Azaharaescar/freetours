@@ -6,29 +6,35 @@ import { apiUrl } from "../config/api.js";
 const router = useRouter();
 const textoBusqueda = ref("");
 const rutas = ref([]);
-const cargando = ref(false);
+
 
 async function cargarRutas(localidad) {
-    cargando.value = true;
-
-    let url = apiUrl + "rutas";
+ 
+    // si hay localidad añadimos query para filtrar por localidad en backend sino cargamos todas las rutas
+    //query es para no cargar todas las rutas al buscar por localidad y que el backend se encargue de filtrar por localidad en vez de cargar todo y filtrar en el frontend que es peor NO OLVIDAR
+    /*
     if (localidad) {
         url = apiUrl + "rutas?localidad=" + encodeURIComponent(localidad);
-    }
+    }*/
 
     try {
-        const respuesta = await fetch(url, {
+        const respuesta = await fetch(apiUrl + "rutas", {
             method: "GET",
         });
 
         if (!respuesta.ok) {
             throw new Error("No se pudieron cargar las rutas");
         }
+         const datos = await respuesta.json();
 
-        const datos = await respuesta.json();
-
+        for (let i = 0; i < datos.length; i++) {
+            const ruta = datos[i];
+            console.log("Ruta:", ruta);
+        }
         if (Array.isArray(datos)) {
             rutas.value = datos;
+        
+            
         } else {
             rutas.value = [];
         }
@@ -37,13 +43,13 @@ async function cargarRutas(localidad) {
         rutas.value = [];
     }
 
-    cargando.value = false;
+   
 }
 
 onMounted(() => {
-    cargarRutas("");
+    cargarRutas();
 });
-
+//funciones para manejar la búsqueda y navegación
 function irLogin() {
     router.push("/login");
 }
@@ -68,8 +74,7 @@ function buscarPorLocalidad() {
     router.push("/buscar");
 }
 
-function obtenerImagen(ruta) {
-    if (ruta && typeof ruta === "object") {
+function obtenerImagen(ruta) {//función para obtener la imagen de la ruta
         if (typeof ruta.foto === "string") {
             if (ruta.foto !== "") {
                 return ruta.foto;
@@ -77,68 +82,10 @@ function obtenerImagen(ruta) {
         }
     }
 
-    return "https://images.unsplash.com/photo-1488085061387-422e29b40080?auto=format&fit=crop&w=1200&q=80";
-}
 
-function textoTitulo(ruta) {
-    let texto = "";
 
-    if (ruta && ruta.titulo) {
-        texto = ruta.titulo;
-    } else {
-        texto = "Tour";
-    }
+console.log("Rutas cargadas:", rutas.value);
 
-    return texto;
-}
-
-function textoLocalidad(ruta) {
-    let texto = "";
-
-    if (ruta && ruta.localidad) {
-        texto = ruta.localidad;
-    } else {
-        texto = "Localidad no disponible";
-    }
-
-    return texto;
-}
-
-function textoDescripcion(ruta) {
-    let texto = "";
-
-    if (ruta && ruta.descripcion) {
-        texto = ruta.descripcion;
-    } else {
-        texto = "Descripción no disponible";
-    }
-
-    return texto;
-}
-
-function textoFecha(ruta) {
-    let texto = "";
-
-    if (ruta && ruta.fecha) {
-        texto = ruta.fecha;
-    } else {
-        texto = "Sin fecha";
-    }
-
-    return texto;
-}
-
-function textoHora(ruta) {
-    let texto = "";
-
-    if (ruta && ruta.hora) {
-        texto = ruta.hora;
-    } else {
-        texto = "Sin hora";
-    }
-
-    return texto;
-}
 </script>
 
 <template>
@@ -198,8 +145,7 @@ function textoHora(ruta) {
                     Encuentra tu próximo free tour
                 </h1>
                 <p class="text-white mb-3">
-                    Busca por ciudad, título o descripción y descubre nuevas
-                    rutas.
+                    Busca por ciudad, y descubre nuevas experiencias...
                 </p>
                 <form
                     class="row g-2 justify-content-center"
@@ -261,7 +207,7 @@ function textoHora(ruta) {
 
         <div v-else class="row g-4">
             <div
-                v-for="ruta in rutas"
+                v-for="ruta in rutas "
                 :key="ruta.id"
                 class="col-12 col-md-6 col-lg-4"
             >
@@ -269,24 +215,24 @@ function textoHora(ruta) {
                     <img
                         :src="obtenerImagen(ruta)"
                         class="card-img-top imagen-tarjeta"
-                        :alt="textoTitulo(ruta)"
+                        :alt="ruta.titulo"
                     />
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title mb-2">
-                            {{ textoTitulo(ruta) }}
+                            {{ruta.titulo}}
                         </h5>
                         <p class="card-text text-secondary mb-2">
-                            {{ textoLocalidad(ruta) }}
+                            {{ruta.localidad}}
                         </p>
                         <p class="card-text mb-3">
-                            {{ textoDescripcion(ruta) }}
+                            {{ ruta.descripcion }}
                         </p>
                         <div class="mt-auto">
                             <span class="badge text-bg-light me-2">{{
-                                textoFecha(ruta)
+                                ruta.fecha
                             }}</span>
                             <span class="badge text-bg-light">{{
-                                textoHora(ruta)
+                                ruta.hora
                             }}</span>
                         </div>
                     </div>

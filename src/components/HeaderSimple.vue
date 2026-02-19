@@ -6,7 +6,7 @@ const router = useRouter();
 const usuarioActual = ref(JSON.parse(localStorage.getItem("sesion")));
 
 function actualizarSesion() {
-    // Aquí refrescamos el usuario del header sin recargar toda la web.
+    // Aquí refrescamos el usuario del header sin recargar toda la web para no tener que volver a cargar la página al iniciar sesión o cerrar sesión para que se actualice el menú del header al momento NO OLVIDAR
     usuarioActual.value = JSON.parse(localStorage.getItem("sesion"));
 }
 
@@ -24,11 +24,13 @@ function cerrarSesion() {
     actualizarSesion();
 
     //avisamos al resto de ficheros de que la sesin cambio
+    
     window.dispatchEvent(new Event("sesionCambiada"));
     router.push("/login");
 }
 
-onMounted(() => {
+onMounted(() => { //onmounted es para ejecutar código al cargar el componente en este caso para actualizar el header si ya hay sesión iniciada al cargar la web y para quedarnos escuchando cambios de sesión
+    // se me olvidara
     //nos quedamos escuchando cambios de sesión
     window.addEventListener("sesionCambiada", actualizarSesion);
 });

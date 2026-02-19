@@ -38,7 +38,8 @@ async function enviar() {
             //guardamos sesión para que siga logueado al cambiar de vista
             localStorage.setItem("sesion", JSON.stringify(datos.user));
 
-            //le avisamos al header para que se actualice en caliente
+            //le avisamos al header para que se actualice
+            //window.dispatchEvent es para mandar un evento personalizado que el header escucha para actualizarse al iniciar sesin o cerrar
             window.dispatchEvent(new Event("sesionCambiada"));
 
             //todo OK voamos al inicio

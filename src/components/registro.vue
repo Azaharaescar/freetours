@@ -22,7 +22,7 @@ async function enviar() {
         return;
     }
 
-    //Pedimos usuarios para comprobar si el correo ya está pillado.
+    //Pedimos usuarios para comprobar si el correo ya está pillado
     const respuestaUsuarios = await fetch(apiUrl + "usuarios");
     const usuarios = await respuestaUsuarios.json();
     const emailForm = correo.value.trim();
@@ -33,7 +33,7 @@ async function enviar() {
         }
     }
 
-    // si todo está bien montamos los datos para crear la cuenta.
+    // si todo está bien montamos los datos para crear la cuenta
     const datosUsuario = {
         nombre: nombre.value.trim(),
         email: correo.value.trim(),
@@ -51,12 +51,12 @@ async function enviar() {
 
         const datos = await respuesta.json();
 
-        //Si se creo bien mandamos al login para iniciar sesión.
+        //Si se creo bien mandamos al login para iniciar sesión
         if (datos.status === "success" || datos.id || datos.message) {
             alert("Cuenta creada correctamente");
             console.log(datos);
 
-            router.push("/login");
+            router.push("/login");//redireccionamos a login para iniciar sesion
         } else {
             alert(datos.message || "No se pudo crear la cuenta");
         }

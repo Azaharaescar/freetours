@@ -11,7 +11,7 @@ const localidadBuscada = ref("");
 async function cargarRutas() {
     const guardada = localStorage.getItem("busquedaLocalidad");
 
-    if (guardada) {
+    if (guardada) {//si hay una búsqueda guardada la usamos para cargar rutas al entrar a esta pagina
         localidadBuscada.value = guardada.trim();
     } else {
         localidadBuscada.value = "";
@@ -26,8 +26,7 @@ async function cargarRutas() {
     try {
         const respuesta = await fetch(
             apiUrl +
-                "rutas?localidad=" +
-                encodeURIComponent(localidadBuscada.value),
+                "rutas?localidad=" + localidadBuscada.value,
             {
                 method: "GET",
             },

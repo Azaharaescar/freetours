@@ -15,7 +15,7 @@ async function cargarRutas() {
             method: "GET",
         });
         const datos = await respuesta.json();
-
+//Si datos es un array lo asignamos a rutas y cargamos guias disponibles para cada fecha sino dejamos rutasBD vacio
         if (Array.isArray(datos)) {
             rutasBD.value = datos;
             await cargarGuiasParaFechas(datos);
@@ -24,7 +24,7 @@ async function cargarRutas() {
                 const ruta = datos[i];
               
                 if (ruta.guia_id) {
-                    guiaSeleccionado.value[ruta.id] = String(ruta.guia_id);// el select funciona con string asi que convertimos a string para que salga seleccionado
+                    guiaSeleccionado.value[ruta.id] = String(ruta.guia_id);//el select funciona con string asi que convertimos a string para que salga seleccionado ya que el id del guia viene en numero 
                 } else {
                     guiaSeleccionado.value[ruta.id] = "";
                 }
@@ -39,13 +39,13 @@ async function cargarRutas() {
 }
 
 async function cargarGuiasParaFechas(rutas) {
-    //hacemos solo una llamada por fecha para no repetir peticiones
+    //hacemos solo una llamada por fecha
     const fechasVistas = [];
 //recorremos rutas y vamos cargando guias disponibles para cada fecha
     for (let i = 0; i < rutas.length; i++) {
         const fechaRuta = rutas[i].fecha;
 
-        if (fechasVistas.includes(fechaRuta)) {
+        if (fechasVistas.includes(fechaRuta)) {//si ya hemos cargado guias para esta fecha la saltamos para no repetir
             continue;
         }
 // guardamos fecha para no repetirla en siguientes iteraciones

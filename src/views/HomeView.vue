@@ -81,16 +81,17 @@ function verInfo(id) {
     router.push("/ruta/" + id);
 }
 function obtenerImagen(ruta) {
-    // Si la foto es una URL absoluta, la devolvemos tal cual
+    // esta funcion sirve para decidir que imagen mostrar en la tarjeta de la ruta
+    // si la foto es una url completa la devuelve tal cual porque ya esta en internet
+    // si la foto es solo el nombre del archivo la busca en la carpeta img porque ahi es donde guardo las imagenes locales
+    // si no hay foto pone una imagen de relleno para que no quede vacio
     if (typeof ruta.foto === "string" && ruta.foto !== "") {
         if (ruta.foto.startsWith("http")) {
             return ruta.foto;
         } else {
-            // Si es una ruta relativa, la buscamos en public/img/
             return "img/" + ruta.foto;
         }
     }
-    // Imagen por defecto si no hay foto
     return "https://via.placeholder.com/400x250?text=Sin+imagen";
 }
 

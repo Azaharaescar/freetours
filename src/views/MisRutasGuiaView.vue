@@ -29,7 +29,7 @@ async function cargarRutasAsignadas() {
     }
 }
 
-// VER ASISTENTES DE LA RUTA SELECCIONADA
+// VER ASISTENTES DE LA RUTA SELECCIONADA 
 async function verAsistentes(ruta) {
     rutaSeleccionada.value = ruta; // guardamos la ruta seleccionada para mostrar su título en el modal de asistentes
     mostrandoAsistentes.value = true; // mostramos el modal de asistentes

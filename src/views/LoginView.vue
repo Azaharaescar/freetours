@@ -7,6 +7,11 @@ import { apiUrl } from "../config/api.js";
 const correo = ref("");
 const contraseña = ref("");
 const router = useRouter();
+import { onMounted } from "vue";
+onMounted(() => {
+    correo.value = "";
+    contraseña.value = "";
+});
 
 // FUNCION PARA ENVIAR DATOS DE LOGIN AL BACKEND
 async function enviar() {

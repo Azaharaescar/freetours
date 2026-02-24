@@ -54,7 +54,7 @@ function Eliminar(id) {
 
 //FUNCION PARA GUARDAR USUARIO DESDE EL SELECT DE ROL EN LA TABLA DE USUARIOS
 async function guardarUsuario(usuario) {
-    //si el usuario no tiene rol seleccionado, mostramos un error y no hacemos la petición
+    //si el usuario no tiene rol seleccionado mostramos un error y no hacemos la petición
     if (!usuario.rol) {
         alert("Selecciona un rol antes de guardar");
         return;

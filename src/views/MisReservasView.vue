@@ -16,35 +16,48 @@ async function cargarReservas() {
             method: "GET",
         });
         reservas.value = await respuesta.json();
+        console.log(reservas.value); // Para revisar la data
     } catch (error) {
         reservas.value = [];
+        console.error(error);
     }
 }
-//MODIFICAR EL NUMERO DE PERSONAS
+
+// MODIFICAR EL NUMERO DE PERSONAS
 async function modificarReserva(reserva) {
     try {
-        const respuesta = await fetch(apiUrl + "reservas?id=" + reserva.id, {
+        const respuesta = await fetch(apiUrl + "reservas?id=" + reserva.reserva_id, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ num_personas: reserva.num_personas }), // solo enviamos el número de personas modificado para actualizarlo en el backend
+            body: JSON.stringify({ num_personas: reserva.num_personas }),
         });
-        const data = await respuesta.json();
+
+        if (!respuesta.ok) throw new Error("Error al modificar la reserva");
+
         alert("Reserva modificada");
     } catch (error) {
+        console.error(error);
         alert("Error al modificar la reserva");
     }
 }
+
 // CANCELAR RESERVA
 async function cancelarReserva(reserva) {
     if (!confirm("¿Seguro que quieres cancelar la reserva?")) return;
     try {
-        const respuesta = await fetch(apiUrl + "reservas?id=" + reserva.id, {
+        const respuesta = await fetch(apiUrl + "reservas?id=" + reserva.reserva_id, {
             method: "DELETE",
         });
-        const data = await respuesta.json();
-        reservas.value = reservas.value.filter((r) => r.id !== reserva.id);
+
+        if (!respuesta.ok) throw new Error("Error al cancelar la reserva");
+
+        // Filtramos la reserva eliminada del array
+        reservas.value = reservas.value.filter(
+            (r) => r.reserva_id !== reserva.reserva_id
+        );
         alert("Reserva cancelada");
     } catch (error) {
+        console.error(error);
         alert("Error al cancelar la reserva");
     }
 }
@@ -54,6 +67,7 @@ onMounted(() => {
     cargarReservas();
 });
 </script>
+
 <template>
     <section class="container py-4">
         <h1>Mis reservas</h1>
@@ -68,13 +82,14 @@ onMounted(() => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="reserva in reservas" :key="reserva.id">
+                    <tr v-for="reserva in reservas" :key="reserva.reserva_id">
                         <td>{{ reserva.ruta_titulo || reserva.ruta_id }}</td>
                         <td>{{ reserva.fecha }}</td>
                         <td>
                             <input
                                 type="number"
                                 min="1"
+                                max="10"
                                 v-model.number="reserva.num_personas"
                                 class="form-control d-inline-block w-auto"
                             />

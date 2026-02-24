@@ -7,18 +7,32 @@ const nombre = ref("");
 const correo = ref("");
 const contraseña = ref("");
 
+import { onMounted } from "vue";
+onMounted(() => {
+    correo.value = "";
+    contraseña.value = "";
+});
 const router = useRouter();
 // FUNCION PARA ENVIAR DATOS DE REGISTRO Y CREAR CUENTA
 async function enviar() {
-    //para no mandar datos vacios
+    // Validación campos vacíos
     if (!nombre.value || !correo.value || !contraseña.value) {
         alert("Completa todos los campos");
         return;
     }
 
-    //prueba
-    if (contraseña.value.length < 8) {
-        alert("La contraseña debe tener mínimo 8 caracteres");
+    // Validación email con regex
+    const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+    if (!emailRegex.test(correo.value.trim())) {
+        alert("Introduce un email válido");
+        return;
+    }
+
+    // Validación contraseña con regex
+    // Mínimo 8 caracteres, al menos una mayúscula, una minúscula, un número y un carácter especial
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-={}\[\]:;"'<>,.?/]).{8,}$/;
+    if (!passwordRegex.test(contraseña.value)) {
+        alert("La contraseña debe tener mínimo 8 caracteres, incluir mayúscula, minúscula, número y carácter especial");
         return;
     }
 

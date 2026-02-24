@@ -1,3 +1,4 @@
+import MisRutasGuiaView from "../views/MisRutasGuiaView.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import LoginView from "../views/LoginView.vue";
@@ -10,6 +11,11 @@ import registroRutas from "../components/registroRutas.vue";
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
+        {
+            path: "/mis-rutas-guia",
+            name: "mis-rutas-guia",
+            component: MisRutasGuiaView,
+        },
         {
             path: "/",
             name: "home",
@@ -57,6 +63,11 @@ const router = createRouter({
             name: "registro-rutas",
             component: registroRutas,
             meta: { requiresAuth: true, requiresAdmin: true },
+        },
+        {
+            path: "/ruta/:id",
+            name: "detalle-ruta",
+            component: () => import("../views/DetalleRutaView.vue"),
         },
     ],
 });

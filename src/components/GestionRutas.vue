@@ -6,8 +6,9 @@ import { apiUrl } from "../config/api.js";
 const router = useRouter();
 const rutasBD = ref([]);
 const guiaSeleccionado = ref({}); //guardamos guia seleccionado para cada ruta en este objeto con id de ruta como clave
-const guiasPorFecha = ref({});// guardamos guias disponibles por fecha para no repetir peticiones
+const guiasPorFecha = ref({}); // guardamos guias disponibles por fecha para no repetir peticiones
 
+// CARGAR RUTAS CON GUIAS ASIGNADOS
 async function cargarRutas() {
     try {
         //aqui traemos todas las rutas con asistentes y guia asignado si tiene
@@ -15,16 +16,16 @@ async function cargarRutas() {
             method: "GET",
         });
         const datos = await respuesta.json();
-//Si datos es un array lo asignamos a rutas y cargamos guias disponibles para cada fecha sino dejamos rutasBD vacio
+        //Si datos es un array lo asignamos a rutas y cargamos guias disponibles para cada fecha sino dejamos rutasBD vacio
         if (Array.isArray(datos)) {
             rutasBD.value = datos;
             await cargarGuiasParaFechas(datos);
 
             for (let i = 0; i < datos.length; i++) {
                 const ruta = datos[i];
-              
+
                 if (ruta.guia_id) {
-                    guiaSeleccionado.value[ruta.id] = String(ruta.guia_id);//el select funciona con string asi que convertimos a string para que salga seleccionado ya que el id del guia viene en numero 
+                    guiaSeleccionado.value[ruta.id] = String(ruta.guia_id); //el select funciona con string asi que convertimos a string para que salga seleccionado ya que el id del guia viene en numero
                 } else {
                     guiaSeleccionado.value[ruta.id] = "";
                 }
@@ -38,19 +39,21 @@ async function cargarRutas() {
     }
 }
 
+// CARGAR GUIAS DISPONIBLES PARA LAS FECHAS DE LAS RUTAS
 async function cargarGuiasParaFechas(rutas) {
     //hacemos solo una llamada por fecha
     const fechasVistas = [];
-//recorremos rutas y vamos cargando guias disponibles para cada fecha
+    //recorremos rutas y vamos cargando guias disponibles para cada fecha
     for (let i = 0; i < rutas.length; i++) {
         const fechaRuta = rutas[i].fecha;
 
-        if (fechasVistas.includes(fechaRuta)) {//si ya hemos cargado guias para esta fecha la saltamos para no repetir
+        if (fechasVistas.includes(fechaRuta)) {
+            //si ya hemos cargado guias para esta fecha la saltamos para no repetir
             continue;
         }
-// guardamos fecha para no repetirla en siguientes iteraciones
+        // guardamos fecha para no repetirla en siguientes iteraciones
         fechasVistas.push(fechaRuta);
-//  cargamos guias disponibles para esta fecha
+        //  cargamos guias disponibles para esta fecha
         try {
             const respuesta = await fetch(
                 apiUrl + "asignaciones?fecha=" + fechaRuta,
@@ -66,7 +69,6 @@ async function cargarGuiasParaFechas(rutas) {
             } else {
                 guiasPorFecha.value[fechaRuta] = [];
             }
-
         } catch (error) {
             console.log("Error al cargar guias para fecha " + fechaRuta, error);
             guiasPorFecha.value[fechaRuta] = [];
@@ -74,15 +76,14 @@ async function cargarGuiasParaFechas(rutas) {
     }
 }
 
+// IR A CREAR RUTA
 function irACrearRuta() {
     router.push("/registro-rutas");
 }
-
+// CANCELAR RUTA
 async function cancelarRuta(id) {
-    
     const confirmar = confirm("¿Seguro que quieres cancelar esta ruta?");
     if (!confirmar) {
-      
     }
 
     try {
@@ -105,11 +106,11 @@ async function cancelarRuta(id) {
         alert("No se pudo conectar con el servidor");
     }
 }
-
+// OBTENER GUIAS PARA MOSTRAR EN EL SELECT DE ASIGNACION DE GUIA DE CADA RUTA
 function guiasParaRuta(ruta) {
     // metemos guia actual y luego los disponibles de la fecha
     const resultado = [];
-//si la ruta ya tiene guia asignado lo ponemos el primero para que salga seleccionado en el select
+    //si la ruta ya tiene guia asignado lo ponemos el primero para que salga seleccionado en el select
     if (ruta.guia_id && ruta.guia_nombre && ruta.guia_email) {
         resultado.push({
             id: ruta.guia_id,
@@ -117,7 +118,7 @@ function guiasParaRuta(ruta) {
             email: ruta.guia_email,
         });
     }
-
+    // luego añadimos los guias disponibles para la fecha de la ruta para que se puedan asignar otros guias a la ruta
     const disponibles = guiasPorFecha.value[ruta.fecha] || [];
 
     for (let i = 0; i < disponibles.length; i++) {
@@ -137,13 +138,12 @@ function guiasParaRuta(ruta) {
 
     return resultado;
 }
-
+// GUARDAR ASIGNACION DE GUIA A RUTA
 async function guardarAsignacion(ruta) {
     const idGuia = guiaSeleccionado.value[ruta.id];
 
     if (!idGuia) {
         alert("Elige un guía para guardar la asignación");
-        
     }
 
     try {
@@ -363,6 +363,5 @@ th {
     background: #fff0f0;
     border-color: #f2c1c1;
     color: #962b2b;
-   
 }
 </style>

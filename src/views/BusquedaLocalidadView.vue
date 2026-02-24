@@ -2,31 +2,21 @@
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { apiUrl } from "../config/api.js";
-
-const router = useRouter();
-const rutas = ref([]);
-const cargando = ref(false);
+//Variables
+const router = useRouter(); // para navegar a otras paginas
+const rutas = ref([]); // para guardar las rutas cargadas desde el backend
 const localidadBuscada = ref("");
 
+// FUNCION PARA CARGAR RUTAS POR LOCALIDAD
 async function cargarRutas() {
-    const guardada = localStorage.getItem("busquedaLocalidad");
+    // al cargar cargamos las rutas filtrando por la localidad
+    // guardada en el localStorage desde el buscador del Home para
+    // mostrar resultados al entrar a esta pagina
+    localidadBuscada.value = localStorage.getItem("busquedaLocalidad");
 
-    if (guardada) {//si hay una búsqueda guardada la usamos para cargar rutas al entrar a esta pagina
-        localidadBuscada.value = guardada.trim();
-    } else {
-        localidadBuscada.value = "";
-    }
-
-    if (!localidadBuscada.value) {
-        rutas.value = [];
-        return;
-    }
-
-    cargando.value = true;
     try {
         const respuesta = await fetch(
-            apiUrl +
-                "rutas?localidad=" + localidadBuscada.value,
+            apiUrl + "rutas?localidad=" + localidadBuscada.value,
             {
                 method: "GET",
             },
@@ -63,14 +53,13 @@ async function cargarRutas() {
         console.error("Error al cargar rutas por localidad:", error);
         rutas.value = [];
     }
-
-    cargando.value = false;
 }
 
 function volverInicio() {
     router.push("/");
 }
 
+// FUNCION PARA OBTENER IMAGEN DE RUTA
 function obtenerImagen(ruta) {
     if (ruta && typeof ruta === "object") {
         if (typeof ruta.foto === "string") {
@@ -82,7 +71,7 @@ function obtenerImagen(ruta) {
 
     return "https://images.unsplash.com/photo-1488085061387-422e29b40080?auto=format&fit=crop&w=1200&q=80";
 }
-
+// FUNCIONES PARA MOSTRAR TEXTOS EN CASO DE QUE FALTEN DATOS EN LA RUTA
 function textoLocalidadBuscada() {
     let texto = "";
 

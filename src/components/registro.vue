@@ -8,7 +8,7 @@ const correo = ref("");
 const contraseña = ref("");
 
 const router = useRouter();
-
+// FUNCION PARA ENVIAR DATOS DE REGISTRO Y CREAR CUENTA
 async function enviar() {
     //para no mandar datos vacios
     if (!nombre.value || !correo.value || !contraseña.value) {
@@ -65,7 +65,7 @@ async function enviar() {
         alert("No se pudo conectar con el servidor");
     }
 }
-
+// FUNCION PARA IR A LOGIN
 function irLogin() {
     router.push("/login");
 }

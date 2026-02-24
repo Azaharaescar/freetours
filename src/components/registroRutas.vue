@@ -15,6 +15,7 @@ const guiaId = ref("");
 const guiasDisponibles = ref([]);
 const router = useRouter();
 
+// FUNCION PARA CARGAR GUIAS DISPONIBLES PARA LA FECHA SELECCIONADA EN EL FORMULARIO DE CREACION DE RUTA
 async function cargarGuiasDisponibles() {
     if (!fecha.value) {
         guiasDisponibles.value = [];
@@ -47,7 +48,7 @@ async function cargarGuiasDisponibles() {
         }
     }
 }
-
+// FUNCION PARA ENVIAR DATOS DE CREACION DE RUTA AL BACKEND
 async function enviar() {
     //aqui ponemos un alert porque todos los campos tienen que estrar completos
     if (

@@ -40,7 +40,7 @@ function Eliminar(id) {
     fetch(apiUrl + "usuarios?id=" + id, {
         method: "DELETE",
     })
-    //convertimos a objeto js porque nos devuelve un jsion 
+        //convertimos a objeto js porque nos devuelve un jsion
         .then((response) => response.json())
         //si la respuesta no es un JSON válido lo mostramos en consola para depurar
         .then((data) => {
@@ -52,7 +52,7 @@ function Eliminar(id) {
         });
 }
 
-//Guardar el rol que acabamos de cambiar desde el select
+//FUNCION PARA GUARDAR USUARIO DESDE EL SELECT DE ROL EN LA TABLA DE USUARIOS
 async function guardarUsuario(usuario) {
     //si el usuario no tiene rol seleccionado, mostramos un error y no hacemos la petición
     if (!usuario.rol) {
@@ -110,6 +110,7 @@ async function guardarUsuario(usuario) {
     }
 }
 
+//FUNCION PARA FILTRAR USUARIOS
 function filtrarUsuarios(busqueda, rol) {
     //empezamos con la lista completa de usuarios sin filtrar
     let filtrados = usuariosBD;
@@ -203,11 +204,15 @@ onMounted(function () {
                         </td>
 
                         <td>
-                            <button  class="EstadoPeligro" type="button" @click="Eliminar(usuario.id)">
+                            <button
+                                class="EstadoPeligro"
+                                type="button"
+                                @click="Eliminar(usuario.id)"
+                            >
                                 Eliminar
                             </button>
                             <button
-                            class="EstadoGuardar"
+                                class="EstadoGuardar"
                                 type="button"
                                 @click="guardarUsuario(usuario)"
                             >

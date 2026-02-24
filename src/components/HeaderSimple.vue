@@ -5,31 +5,26 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 const usuarioActual = ref(JSON.parse(localStorage.getItem("sesion")));
 
+// FUNCION PARA ACTUALIZAR SESION EN EL HEADER AL INICIAR O CERRAR SESION
 function actualizarSesion() {
     // Aquí refrescamos el usuario del header sin recargar toda la web para no tener que volver a cargar la página al iniciar sesión o cerrar sesión para que se actualice el menú del header al momento NO OLVIDAR
+    // osea sin hacer el tipico "location.reload()" que recarga toda la pgina
     usuarioActual.value = JSON.parse(localStorage.getItem("sesion"));
 }
-
-function haySesion() {
-    if (localStorage.getItem("sesion")) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
+// FUNCION PARA CERRAR SESION
 function cerrarSesion() {
     //cerramos sesión y actualizamos el menu al momento.
     localStorage.removeItem("sesion");
     actualizarSesion();
 
     //avisamos al resto de ficheros de que la sesin cambio
-    
+
     window.dispatchEvent(new Event("sesionCambiada"));
     router.push("/login");
 }
 
-onMounted(() => { //onmounted es para ejecutar código al cargar el componente en este caso para actualizar el header si ya hay sesión iniciada al cargar la web y para quedarnos escuchando cambios de sesión
+onMounted(() => {
+    //onmounted es para ejecutar código al cargar el componente en este caso para actualizar el header si ya hay sesión iniciada al cargar la web y para quedarnos escuchando cambios de sesión
     // se me olvidara
     //nos quedamos escuchando cambios de sesión
     window.addEventListener("sesionCambiada", actualizarSesion);
@@ -49,6 +44,20 @@ onBeforeUnmount(() => {
                 <h1>FreeTours</h1>
             </div>
             <nav>
+                <router-link
+                    v-if="usuarioActual && usuarioActual.rol === 'guia'"
+                    to="/mis-rutas-guia"
+                    class="EnlaceNav"
+                >
+                    Mis rutas asignadas
+                </router-link>
+                <router-link
+                    v-if="usuarioActual && usuarioActual.rol === 'cliente'"
+                    to="/mis-reservas"
+                    class="EnlaceNav"
+                >
+                    Mis reservas
+                </router-link>
                 <router-link to="/" class="EnlaceNav">Inicio</router-link>
                 <router-link to="/about" class="EnlaceNav">Acerca</router-link>
                 <router-link
@@ -72,18 +81,22 @@ onBeforeUnmount(() => {
                 >
                     Registro rutas
                 </router-link>
-                <router-link v-if="!haySesion()" to="/login" class="EnlaceNav">
+                <router-link
+                    v-if="!usuarioActual"
+                    to="/login"
+                    class="EnlaceNav"
+                >
                     Iniciar sesion
                 </router-link>
                 <router-link
-                    v-if="!haySesion()"
+                    v-if="!usuarioActual"
                     to="/registro"
                     class="EnlaceNav"
                 >
                     Registrarse
                 </router-link>
                 <button
-                    v-if="haySesion()"
+                    v-if="usuarioActual"
                     type="button"
                     class="BotonCerrarSesion"
                     @click="cerrarSesion"

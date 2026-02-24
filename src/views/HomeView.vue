@@ -6,10 +6,10 @@ import { apiUrl } from "../config/api.js";
 const router = useRouter();
 const textoBusqueda = ref("");
 const rutas = ref([]);
+const usuarioLogueado = ref(JSON.parse(localStorage.getItem("sesion")));
 
-
+// FUNCION PARA CARGAR RUTAS DESDE EL BACKEND
 async function cargarRutas(localidad) {
- 
     // si hay localidad añadimos query para filtrar por localidad en backend sino cargamos todas las rutas
     //query es para no cargar todas las rutas al buscar por localidad y que el backend se encargue de filtrar por localidad en vez de cargar todo y filtrar en el frontend que es peor NO OLVIDAR
     /*
@@ -25,7 +25,7 @@ async function cargarRutas(localidad) {
         if (!respuesta.ok) {
             throw new Error("No se pudieron cargar las rutas");
         }
-         const datos = await respuesta.json();
+        const datos = await respuesta.json();
 
         for (let i = 0; i < datos.length; i++) {
             const ruta = datos[i];
@@ -33,8 +33,6 @@ async function cargarRutas(localidad) {
         }
         if (Array.isArray(datos)) {
             rutas.value = datos;
-        
-            
         } else {
             rutas.value = [];
         }
@@ -42,8 +40,6 @@ async function cargarRutas(localidad) {
         console.error("Error al cargar rutas:", error);
         rutas.value = [];
     }
-
-   
 }
 
 onMounted(() => {
@@ -73,19 +69,20 @@ function buscarPorLocalidad() {
 
     router.push("/buscar");
 }
-
-function obtenerImagen(ruta) {//función para obtener la imagen de la ruta
-        if (typeof ruta.foto === "string") {
-            if (ruta.foto !== "") {
-                return ruta.foto;
-            }
-        }
+function verInfo(id) {
+    router.push("/ruta/" + id);
+}
+function obtenerImagen(ruta) {
+    //función para obtener la imagen de la ruta
+    if (typeof ruta.ruta_foto === "string" && ruta.ruta_foto !== "") {
+        return ruta.ruta_foto;
     }
-
-
+    if (typeof ruta.foto === "string" && ruta.foto !== "") {
+        return ruta.foto;
+    }
+}
 
 console.log("Rutas cargadas:", rutas.value);
-
 </script>
 
 <template>
@@ -171,6 +168,7 @@ console.log("Rutas cargadas:", rutas.value);
 
                 <div class="d-flex gap-2 justify-content-center flex-wrap mt-3">
                     <button
+                        v-if="!usuarioLogueado"
                         class="btn btn-light"
                         type="button"
                         @click="irLogin"
@@ -178,6 +176,7 @@ console.log("Rutas cargadas:", rutas.value);
                         Iniciar sesión
                     </button>
                     <button
+                        v-if="!usuarioLogueado"
                         class="btn btn-outline-light"
                         type="button"
                         @click="irRegistro"
@@ -207,7 +206,7 @@ console.log("Rutas cargadas:", rutas.value);
 
         <div v-else class="row g-4">
             <div
-                v-for="ruta in rutas "
+                v-for="ruta in rutas"
                 :key="ruta.id"
                 class="col-12 col-md-6 col-lg-4"
             >
@@ -219,21 +218,31 @@ console.log("Rutas cargadas:", rutas.value);
                     />
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title mb-2">
-                            {{ruta.titulo}}
+                            {{ ruta.titulo }}
                         </h5>
                         <p class="card-text text-secondary mb-2">
-                            {{ruta.localidad}}
+                            {{ ruta.localidad }}
                         </p>
                         <p class="card-text mb-3">
                             {{ ruta.descripcion }}
                         </p>
-                        <div class="mt-auto">
+                        <div class="mt-auto mb-2">
                             <span class="badge text-bg-light me-2">{{
                                 ruta.fecha
                             }}</span>
                             <span class="badge text-bg-light">{{
                                 ruta.hora
                             }}</span>
+                        </div>
+                        <!-- Botones de información y reservar -->
+                        <div class="d-flex gap-2 justify-content-end mt-2">
+                            <button
+                                @click="verInfo(ruta.id)"
+                                class="btn btn-info btn-sm boton-info"
+                                type="button"
+                            >
+                                Info
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -275,5 +284,25 @@ console.log("Rutas cargadas:", rutas.value);
     .imagen-carrusel {
         height: 420px;
     }
+}
+/* Botón de información */
+.boton-info {
+    background-color: #0dcaf0;
+    color: #fff;
+    border: none;
+}
+
+/* Botón de reservar */
+.boton-reservar {
+    background-color: #198754;
+    color: #fff;
+    border: none;
+}
+
+.boton-info:hover {
+    background-color: #31d2f2;
+}
+.boton-reservar:hover {
+    background-color: #157347;
 }
 </style>

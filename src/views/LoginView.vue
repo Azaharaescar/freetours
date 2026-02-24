@@ -8,6 +8,7 @@ const correo = ref("");
 const contraseña = ref("");
 const router = useRouter();
 
+// FUNCION PARA ENVIAR DATOS DE LOGIN AL BACKEND
 async function enviar() {
     //si falta algo ni llamamos a la api y avisamos directo
     if (!correo.value || !contraseña.value) {
@@ -53,6 +54,7 @@ async function enviar() {
         alert("No se pudo conectar con el servidor");
     }
 }
+
 
 function irRegistro() {
     router.push("/registro");

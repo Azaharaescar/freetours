@@ -40,7 +40,13 @@ onBeforeUnmount(() => {
     <header class="EncabezadoSimple">
         <div class="ContenedorEncabezado">
             <div class="MarcaSitio">
-                <div class="CajaLogo">Logo</div>
+                <div class="CajaLogo">
+                    <img
+                        src="/img/logo.png"
+                        alt="Logo"
+                        class="LogoRedondeado"
+                    />
+                </div>
                 <h1>FreeTours</h1>
             </div>
             <nav>
@@ -131,16 +137,22 @@ onBeforeUnmount(() => {
 }
 
 .CajaLogo {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    background: #bfe3c2;
-    color: #1f2b24;
-    display: grid;
-    place-items: center;
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    background: transparent;
+    box-shadow: none;
+}
+
+.LogoRedondeado {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 nav {

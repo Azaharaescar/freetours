@@ -5,6 +5,8 @@ import { apiUrl } from "../config/api.js";
 
 const router = useRouter();
 const rutasBD = ref([]);
+const rutasOriginal = ref([]); // Para restaurar tras limpiar búsqueda
+const busquedaRuta = ref("");
 const guiaSeleccionado = ref({}); //guardamos guia seleccionado para cada ruta en este objeto con id de ruta como clave
 const guiasPorFecha = ref({}); // guardamos guias disponibles por fecha para no repetir peticiones
 
@@ -19,6 +21,7 @@ async function cargarRutas() {
         //Si datos es un array lo asignamos a rutas y cargamos guias disponibles para cada fecha sino dejamos rutasBD vacio
         if (Array.isArray(datos)) {
             rutasBD.value = datos;
+            rutasOriginal.value = datos;
             await cargarGuiasParaFechas(datos);
 
             for (let i = 0; i < datos.length; i++) {
@@ -41,19 +44,46 @@ async function cargarRutas() {
 
 // CARGAR GUIAS DISPONIBLES PARA LAS FECHAS DE LAS RUTAS
 async function cargarGuiasParaFechas(rutas) {
-    //hacemos solo una llamada por fecha
-    const fechasVistas = [];
-    //recorremos rutas y vamos cargando guias disponibles para cada fecha
-    for (let i = 0; i < rutas.length; i++) {
-        const fechaRuta = rutas[i].fecha;
+    //solo hacemos una consulta por cada fecha distinta
+    const fechasVistas = []; // Aquí guardo las fechas que ya he mirado
 
-        if (fechasVistas.includes(fechaRuta)) {
-            //si ya hemos cargado guias para esta fecha la saltamos para no repetir
-            continue;
+    //recorro todas las rutas una a una
+    for (let i = 0; i < rutas.length; i++) {
+        const fechaRuta = rutas[i].fecha; // Cojo la fecha de la ruta actual
+
+        //si ya he buscado los guias para esta fecha paso a la siguiente ruta
+        if (!fechasVistas.includes(fechaRuta)) {
+            //aunto que ya he mirado esta fecha
+            fechasVistas.push(fechaRuta);
+
+            // Pido al backend los guias disponibles para esa fecha
+            try {
+                const respuesta = await fetch(
+                    apiUrl + "asignaciones?fecha=" + fechaRuta,
+                    {
+                        method: "GET",
+                    },
+                );
+
+                const datos = await respuesta.json(); //aqui recibo el array de guias disponibles
+
+                //si la respuesta es un array lo guardo en guiasPorFecha para esa fecha
+                if (Array.isArray(datos)) {
+                    guiasPorFecha.value[fechaRuta] = datos;
+                } else {
+                    //si no guardo un array vacío
+                    guiasPorFecha.value[fechaRuta] = [];
+                }
+            } catch (error) {
+                // Si hay error guardo un array vacío para esa fecha
+                guiasPorFecha.value[fechaRuta] = [];
+            }
         }
-        // guardamos fecha para no repetirla en siguientes iteraciones
+
+        //apunto que ya he mirado esta fecha
         fechasVistas.push(fechaRuta);
-        //  cargamos guias disponibles para esta fecha
+
+        //pido al backend los guías disponibles para esa fecha
         try {
             const respuesta = await fetch(
                 apiUrl + "asignaciones?fecha=" + fechaRuta,
@@ -62,15 +92,17 @@ async function cargarGuiasParaFechas(rutas) {
                 },
             );
 
-            const datos = await respuesta.json();
+            const datos = await respuesta.json(); //aqui recibo el array de guias disponibles
 
+            //si la respuesta es un array lo guardo en guiasPorFecha para esa fecha
             if (Array.isArray(datos)) {
                 guiasPorFecha.value[fechaRuta] = datos;
             } else {
+                // si no guardo un array vacío
                 guiasPorFecha.value[fechaRuta] = [];
             }
         } catch (error) {
-            console.log("Error al cargar guias para fecha " + fechaRuta, error);
+            // si hay error guardo un array vacío para esa fecha
             guiasPorFecha.value[fechaRuta] = [];
         }
     }
@@ -78,7 +110,7 @@ async function cargarGuiasParaFechas(rutas) {
 
 // IR A CREAR RUTA
 function irACrearRuta() {
-    router.push("/registro-rutas");
+    router.push("/registro-rutas"); //router.push para ir a la vista de crear ruta
 }
 // CANCELAR RUTA
 async function cancelarRuta(id) {
@@ -138,6 +170,7 @@ function guiasParaRuta(ruta) {
 
     return resultado;
 }
+
 // GUARDAR ASIGNACION DE GUIA A RUTA
 async function guardarAsignacion(ruta) {
     const idGuia = guiaSeleccionado.value[ruta.id];
@@ -175,6 +208,24 @@ async function guardarAsignacion(ruta) {
     }
 }
 
+function buscarRutas() {
+    if (!busquedaRuta.value) {
+        rutasBD.value = rutasOriginal.value;
+        return;
+    }
+    const texto = busquedaRuta.value.toLowerCase();
+    rutasBD.value = rutasOriginal.value.filter(
+        (ruta) =>
+            (ruta.titulo && ruta.titulo.toLowerCase().includes(texto)) ||
+            (ruta.localidad && ruta.localidad.toLowerCase().includes(texto)),
+    );
+}
+
+function limpiarBusquedaRuta() {
+    busquedaRuta.value = "";
+    rutasBD.value = rutasOriginal.value;
+}
+
 onMounted(function () {
     cargarRutas();
 });
@@ -191,6 +242,29 @@ onMounted(function () {
             </button>
         </div>
 
+        <div class="PanelFiltros" style="margin-bottom: 1rem">
+            <input
+                v-model="busquedaRuta"
+                type="text"
+                placeholder="Buscar por nombre o localidad"
+                style="
+                    padding: 0.5rem;
+                    border-radius: 8px;
+                    border: 1px solid #c9d7cc;
+                    margin-right: 0.5rem;
+                "
+            />
+            <button type="button" class="BotonSecundario" @click="buscarRutas">
+                Buscar
+            </button>
+            <button
+                type="button"
+                class="BotonSecundario"
+                @click="limpiarBusquedaRuta"
+            >
+                Limpiar
+            </button>
+        </div>
         <div class="ContenedorTabla">
             <table>
                 <thead>

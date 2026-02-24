@@ -110,26 +110,24 @@ async function guardarUsuario(usuario) {
     }
 }
 
-//FUNCION PARA FILTRAR USUARIOS
-function filtrarUsuarios(busqueda, rol) {
-    //empezamos con la lista completa de usuarios sin filtrar
-    let filtrados = usuariosBD;
-    if (busqueda.value) {
-        const busquedaMinuscula = busqueda.value.toLowerCase();
-        filtrados = filtrados.filter(
+// Buscar solo por nombre o localidad
+function filtrarUsuarios() {
+    cargarUsuarios().then(() => {
+        if (!busqueda.value) return;
+        const texto = busqueda.value.toLowerCase();
+        usuariosBD.value = usuariosBD.value.filter(
             (usuario) =>
-                usuario.nombre.toLowerCase().includes(busquedaMinuscula) ||
-                usuario.email.toLowerCase().includes(busquedaMinuscula),
+                (usuario.nombre &&
+                    usuario.nombre.toLowerCase().includes(texto)) ||
+                (usuario.localidad &&
+                    usuario.localidad.toLowerCase().includes(texto)),
         );
-    }
+    });
+}
 
-    /*si se ha seleccionado un rol filtramos por ese rol con filter
-    if (rol.value !== "todos") {
-        filtrados = filtrados.filter((usuario) => usuario.rol === rol.value);
-    }
-*/
-    //actualizamos la lista de usuarios que se muestra en la tabla.
-    usuariosBD.value = filtrados;
+function limpiarBusqueda() {
+    busqueda.value = "";
+    cargarUsuarios();
 }
 
 onMounted(function () {
@@ -175,7 +173,13 @@ onMounted(function () {
                 >
                     Aplicar
                 </button>
-                <button type="button" class="BotonSecundario">Limpiar</button>
+                <button
+                    type="button"
+                    class="BotonSecundario"
+                    @click="limpiarBusqueda"
+                >
+                    Limpiar
+                </button>
             </div>
         </div>
 

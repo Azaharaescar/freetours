@@ -36,17 +36,13 @@ async function enviar() {
         console.log(datos);
 
         if (datos.status === "success") {
-            //guardamos sesión para que siga logueado al cambiar de vista
             localStorage.setItem("sesion", JSON.stringify(datos.user));
-
-            //le avisamos al header para que se actualice
-            //window.dispatchEvent es para mandar un evento personalizado que el header escucha para actualizarse al iniciar sesin o cerrar
             window.dispatchEvent(new Event("sesionCambiada"));
-
-            //todo OK voamos al inicio
+            // Limpiar inputs tras login exitoso
+            correo.value = "";
+            contraseña.value = "";
             router.push("/");
         } else {
-            //Si usuario/clave no cuadran mostramos aviso
             alert(datos.message || "Correo o contraseña incorrectos");
         }
     } catch (error) {
@@ -54,7 +50,6 @@ async function enviar() {
         alert("No se pudo conectar con el servidor");
     }
 }
-
 
 function irRegistro() {
     router.push("/registro");

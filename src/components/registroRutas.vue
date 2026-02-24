@@ -152,8 +152,13 @@ async function enviar() {
                         <input
                             v-model="foto"
                             type="text"
-                            placeholder="https://... (solo url de imagen)"
+                            placeholder="Ej: historia.jpg o https://..."
                         />
+                        <small style="color: #666"
+                            >Pon solo el nombre del archivo si la imagen está en
+                            public/img/. Si es externa, pon la URL
+                            completa.</small
+                        >
                     </div>
 
                     <div class="CampoFormulario">

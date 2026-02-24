@@ -6,6 +6,7 @@ import { apiUrl } from "../config/api.js";
 const router = useRouter();
 const textoBusqueda = ref("");
 const rutas = ref([]);
+const cargando = ref(true);
 const usuarioLogueado = ref(JSON.parse(localStorage.getItem("sesion")));
 
 // FUNCION PARA CARGAR RUTAS DESDE EL BACKEND
@@ -17,6 +18,7 @@ async function cargarRutas(localidad) {
         url = apiUrl + "rutas?localidad=" + encodeURIComponent(localidad);
     }*/
 
+    cargando.value = true;
     try {
         const respuesta = await fetch(apiUrl + "rutas", {
             method: "GET",
@@ -33,12 +35,18 @@ async function cargarRutas(localidad) {
         }
         if (Array.isArray(datos)) {
             rutas.value = datos;
+            console.log("Rutas cargadas:", rutas.value);
+            rutas.value.forEach((ruta, i) => {
+                console.log(`Ruta ${i}:`, ruta);
+            });
         } else {
             rutas.value = [];
         }
     } catch (error) {
         console.error("Error al cargar rutas:", error);
         rutas.value = [];
+    } finally {
+        cargando.value = false;
     }
 }
 
@@ -73,13 +81,17 @@ function verInfo(id) {
     router.push("/ruta/" + id);
 }
 function obtenerImagen(ruta) {
-    //función para obtener la imagen de la ruta
-    if (typeof ruta.ruta_foto === "string" && ruta.ruta_foto !== "") {
-        return ruta.ruta_foto;
-    }
+    // Si la foto es una URL absoluta, la devolvemos tal cual
     if (typeof ruta.foto === "string" && ruta.foto !== "") {
-        return ruta.foto;
+        if (ruta.foto.startsWith("http")) {
+            return ruta.foto;
+        } else {
+            // Si es una ruta relativa, la buscamos en public/img/
+            return "img/" + ruta.foto;
+        }
     }
+    // Imagen por defecto si no hay foto
+    return "https://via.placeholder.com/400x250?text=Sin+imagen";
 }
 
 console.log("Rutas cargadas:", rutas.value);

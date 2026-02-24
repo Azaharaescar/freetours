@@ -54,9 +54,11 @@ async function enviar() {
         //Si se creo bien mandamos al login para iniciar sesión
         if (datos.status === "success" || datos.id || datos.message) {
             alert("Cuenta creada correctamente");
-            console.log(datos);
-
-            router.push("/login");//redireccionamos a login para iniciar sesion
+            // Limpiar inputs tras registro exitoso
+            nombre.value = "";
+            correo.value = "";
+            contraseña.value = "";
+            router.push("/login");
         } else {
             alert(datos.message || "No se pudo crear la cuenta");
         }

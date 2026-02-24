@@ -52,7 +52,7 @@ function cerrarAsistentes() {
 onMounted(() => {
     cargarRutasAsignadas();
 
-    console.log("rutas asignadas", rutasAsignadas); // <-- Mostrar rutas asignadas en consola después de cargarlas
+    console.log("rutas asignadas", rutasAsignadas);
     rutasAsignadas.value.forEach((ruta) => console.log(ruta));
 });
 </script>

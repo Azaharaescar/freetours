@@ -11,9 +11,13 @@ const descripcion = ref("");
 const foto = ref("");
 const latitud = ref("");
 const longitud = ref("");
+
 const guiaId = ref("");
 const guiasDisponibles = ref([]);
 const router = useRouter();
+
+// esta variable guarda la fecha de hoy en formato yyyy-mm-dd para limitar el input de fecha
+const hoy = new Date().toISOString().slice(0, 10);
 
 // FUNCION PARA CARGAR GUIAS DISPONIBLES PARA LA FECHA SELECCIONADA EN EL FORMULARIO DE CREACION DE RUTA
 async function cargarGuiasDisponibles() {
@@ -163,9 +167,11 @@ async function enviar() {
 
                     <div class="CampoFormulario">
                         <label for="fecha">Fecha</label>
+                        <!-- el input de fecha no deja elegir dias anteriores a hoy gracias al atributo min -->
                         <input
                             v-model="fecha"
                             type="date"
+                            :min="hoy"
                             @change="cargarGuiasDisponibles"
                         />
                     </div>
